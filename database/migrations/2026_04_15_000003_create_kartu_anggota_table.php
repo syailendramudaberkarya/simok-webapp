@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,7 +13,7 @@ return new class extends Migration
         Schema::create('kartu_anggota', function (Blueprint $table) {
             $table->id();
             $table->foreignId('anggota_id')->constrained('anggota')->cascadeOnDelete();
-            $table->string('nomor_anggota', 5);
+            $table->string('nomor_anggota', 30);
             $table->string('qr_code_url')->nullable();
             $table->string('pdf_path')->nullable();
             $table->foreignId('template_id')->nullable()->constrained('kartu_templates')->nullOnDelete();

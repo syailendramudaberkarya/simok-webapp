@@ -126,4 +126,19 @@ class Anggota extends Model
             'file.private', now()->addMinutes(30), ['path' => $this->foto_ktp_path]
         );
     }
+
+    /**
+     * Get the expiration date.
+     * Prefers the date from the latest card, falls back to +5 years from approval.
+     */
+    public function getExpiredAtAttribute(): ?\Illuminate\Support\Carbon
+    {
+        $latestCard = $this->kartuAnggota()->latest()->first();
+        
+        if ($latestCard && $latestCard->berlaku_hingga) {
+            return \Illuminate\Support\Carbon::parse($latestCard->berlaku_hingga);
+        }
+
+        return $this->approved_at?->copy()->addYears(5);
+    }
 }

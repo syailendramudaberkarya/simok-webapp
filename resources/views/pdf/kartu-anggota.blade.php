@@ -150,12 +150,16 @@
                 <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>
                         <td width="35%" valign="bottom" style="padding-bottom: 5pt;">
+                            <div class="label" style="font-size: 6pt; margin-bottom: 1pt;">Berlaku Sejak</div>
                             <div class="footer-val">
                                 {{ $anggota->approved_at ? $anggota->approved_at->translatedFormat('d/m/Y') : '-' }}
                             </div>
                         </td>
                         <td width="35%" valign="bottom" style="padding-bottom: 5pt;">
-                            <div class="footer-val">SEUMUR HIDUP</div>
+                            <div class="label" style="font-size: 6pt; margin-bottom: 1pt;">Berlaku Hingga</div>
+                            <div class="footer-val">
+                                {{ $anggota->expired_at ? $anggota->expired_at->translatedFormat('d/m/Y') : '-' }}
+                            </div>
                         </td>
                         <td align="right" valign="bottom">
                             <div class="qr-white-box">
