@@ -1,0 +1,86 @@
+/*
+ Navicat MySQL Dump SQL
+
+ Source Server         : hkti.id
+ Source Server Type    : MariaDB
+ Source Server Version : 100625 (10.6.25-MariaDB)
+ Source Host           : 119.235.255.51:4981
+ Source Schema         : nutrihub_hkti
+
+ Target Server Type    : MariaDB
+ Target Server Version : 100625 (10.6.25-MariaDB)
+ File Encoding         : 65001
+
+ Date: 14/04/2026 12:47:07
+*/
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for propinsi
+-- ----------------------------
+DROP TABLE IF EXISTS `propinsi`;
+CREATE TABLE `propinsi` (
+  `id` char(2) NOT NULL,
+  `code` varchar(10) NOT NULL,
+  `propinsi` varchar(100) NOT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
+  `island` varchar(50) DEFAULT NULL,
+  `timezone` varchar(20) DEFAULT 'WIB',
+  `total_members` int(10) unsigned DEFAULT 0,
+  `total_cities` int(10) unsigned DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_code` (`code`) USING BTREE,
+  KEY `idx_island` (`island`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Records of propinsi
+-- ----------------------------
+BEGIN;
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('01', '11', 'Aceh', 4.69513500, 96.74939900, 'Sumatera', 'WIB', 18250, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:18');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('02', '12', 'Sumatera Utara', 3.59703100, 98.67851300, 'Sumatera', 'WIB', 89432, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:24');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('03', '13', 'Sumatera Barat', -0.73994000, 100.80000300, 'Sumatera', 'WIB', 45230, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:33');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('04', '14', 'Riau', 0.29270900, 101.70683100, 'Sumatera', 'WIB', 35120, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:36');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('05', '15', 'Jambi', -1.61015700, 103.61312200, 'Sumatera', 'WIB', 22180, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:41');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('06', '16', 'Sumatera Selatan', -2.99093400, 104.75655400, 'Sumatera', 'WIB', 52180, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:43');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('07', '17', 'Bengkulu', -3.79284100, 102.25925500, 'Sumatera', 'WIB', 15430, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:45');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('08', '18', 'Lampung', -4.55858600, 105.40680800, 'Sumatera', 'WIB', 38920, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:47');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('09', '19', 'Kepulauan Bangka Belitung', -2.74105300, 106.44058500, 'Sumatera', 'WIB', 8520, 0, '2026-02-01 21:15:50', '2026-02-10 00:19:31');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('33', '21', 'Kepulauan Riau', 3.94565400, 108.14286100, 'Sumatera', 'WIB', 12350, 0, '2026-02-01 21:15:50', '2026-02-10 00:19:25');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('10', '31', 'Daerah Khusus Ibukota Jakarta', -6.20876300, 106.84559900, 'Jawa', 'WIB', 125450, 0, '2026-02-01 21:15:50', '2026-02-10 00:19:40');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('11', '32', 'Jawa Barat', -6.91474400, 107.60981000, 'Jawa', 'WIB', 186230, 0, '2026-02-01 21:15:50', '2026-02-09 16:16:19');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('12', '33', 'Jawa Tengah', -7.15097500, 110.14025900, 'Jawa', 'WIB', 485230, 0, '2026-02-01 21:15:50', '2026-02-09 16:16:22');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('13', '34', 'Daerah Istimewa Yogyakarta', -7.79706800, 110.37052900, 'Jawa', 'WIB', 28900, 0, '2026-02-01 21:15:50', '2026-02-10 00:19:48');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('14', '35', 'Jawa Timur', -7.25044500, 112.76884500, 'Jawa', 'WIB', 324120, 0, '2026-02-01 21:15:50', '2026-02-09 16:16:28');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('15', '36', 'Banten', -6.44149400, 106.13786600, 'Jawa', 'WIB', 42350, 0, '2026-02-01 21:15:50', '2026-02-09 16:16:32');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('16', '51', 'Bali', -8.34053900, 115.09194900, 'Bali & Nusa Tenggara', 'WITA', 32450, 0, '2026-02-01 21:15:50', '2026-02-09 16:16:43');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('17', '52', 'Nusa Tenggara Barat', -8.65293000, 117.36164200, 'Bali & Nusa Tenggara', 'WITA', 24180, 0, '2026-02-01 21:15:50', '2026-02-09 16:16:47');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('18', '53', 'Nusa Tenggara Timur', -8.65738000, 121.07937100, 'Bali & Nusa Tenggara', 'WITA', 18920, 0, '2026-02-01 21:15:50', '2026-02-09 16:16:54');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('19', '61', 'Kalimantan Barat', -0.02633000, 109.34250600, 'Kalimantan', 'WIB', 24180, 0, '2026-02-01 21:15:50', '2026-02-09 16:17:04');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('20', '62', 'Kalimantan Tengah', -1.68145000, 113.38235500, 'Kalimantan', 'WIB', 18530, 0, '2026-02-01 21:15:50', '2026-02-09 16:17:25');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('21', '63', 'Kalimantan Selatan', -3.09264000, 115.28375100, 'Kalimantan', 'WITA', 21420, 0, '2026-02-01 21:15:50', '2026-02-09 16:17:31');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('22', '64', 'Kalimantan Timur', -0.50210600, 117.15370900, 'Kalimantan', 'WITA', 48920, 0, '2026-02-01 21:15:50', '2026-02-09 16:17:33');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('34', '65', 'Kalimantan Utara', 3.07309300, 116.04138900, 'Kalimantan', 'WITA', 8920, 0, '2026-02-01 21:15:50', '2026-02-09 16:12:35');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('23', '71', 'Sulawesi Utara', 0.62469300, 123.97500100, 'Sulawesi', 'WITA', 28450, 0, '2026-02-01 21:15:50', '2026-02-09 16:20:12');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('24', '72', 'Sulawesi Tengah', -1.43002300, 121.44561900, 'Sulawesi', 'WITA', 19830, 0, '2026-02-01 21:15:50', '2026-02-09 16:20:31');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('25', '73', 'Sulawesi Selatan', -5.14766500, 119.43273100, 'Sulawesi', 'WITA', 56780, 0, '2026-02-01 21:15:50', '2026-02-09 16:20:43');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('26', '74', 'Sulawesi Tenggara', -4.14491000, 122.17427200, 'Sulawesi', 'WITA', 15230, 0, '2026-02-01 21:15:50', '2026-02-09 16:21:09');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('27', '75', 'Gorontalo', 0.54355700, 123.05676200, 'Sulawesi', 'WITA', 9430, 0, '2026-02-01 21:15:50', '2026-02-09 16:21:14');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('32', '76', 'Sulawesi Barat', -2.84413500, 119.23207700, 'Sulawesi', 'WITA', 7820, 0, '2026-02-01 21:15:50', '2026-02-09 16:22:51');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('28', '81', 'Maluku', -3.23846200, 130.14527100, 'Maluku & Papua', 'WIT', 10250, 0, '2026-02-01 21:15:50', '2026-02-09 16:22:21');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('29', '82', 'Maluku Utara', 1.57099900, 127.80876900, 'Maluku & Papua', 'WIT', 7530, 0, '2026-02-01 21:15:50', '2026-02-09 16:22:28');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('30', '91', 'Papua', -4.26992800, 138.08035300, 'Maluku & Papua', 'WIT', 15230, 0, '2026-02-01 21:15:50', '2026-02-09 16:23:12');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('92', '92', 'Papua Barat', -1.33611100, 133.17422200, 'Maluku & Papua', 'WIT', 12450, 0, '2026-02-01 21:15:50', '2026-02-09 16:12:05');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('93', '93', 'Papua Selatan', NULL, NULL, NULL, 'WIB', 0, 0, '2026-02-09 16:06:42', '2026-02-09 16:06:42');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('94', '94', 'Papua tengah', NULL, NULL, NULL, 'WIB', 0, 0, '2026-02-09 16:04:56', '2026-02-09 16:04:56');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('95', '95', 'Papua Pegunungan', NULL, NULL, NULL, 'WIB', 0, 0, '2026-02-09 16:04:29', '2026-02-09 16:04:29');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('96', '96', 'Papua Barat Daya', NULL, NULL, NULL, 'WIB', 0, 0, '2026-02-09 16:03:57', '2026-02-09 16:04:38');
+INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('99', '99', 'Luar Negeri', NULL, NULL, NULL, 'WIB', 0, 0, '2026-02-09 16:06:56', '2026-02-09 16:06:56');
+COMMIT;
+
+SET FOREIGN_KEY_CHECKS = 1;
