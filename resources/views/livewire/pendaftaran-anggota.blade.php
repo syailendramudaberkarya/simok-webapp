@@ -43,7 +43,7 @@
                                                 d="M4 16l4-4m0 0l4 4m-4-4v12M20 8l-4 4m0 0l-4-4m4 4V0" />
                                         </svg>
                                         <p class="text-sm text-white/50"><span class="font-semibold text-primary-300">Klik
-                                                upload</span> atau drag & drop</p>
+                                                upload</span></p>
                                         <p class="text-xs text-white/30 mt-1">JPG, PNG (Maks. 5MB)</p>
                                     </div>
                                 @endif
@@ -60,10 +60,9 @@
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                     </path>
                                 </svg>
-                                <span>
-                                    Mengunggah & Memindai KTP...
-                                </span>
+                                <span>Mengunggah & Memindai KTP Otomatis...</span>
                             </div>
+
                             @error('fotoKtp') <span class="text-red-400 text-sm mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
@@ -83,7 +82,7 @@
                                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                         <p class="text-sm text-white/50"><span class="font-semibold text-primary-300">Klik
-                                                upload</span> atau drag & drop</p>
+                                                upload</span></p>
                                         <p class="text-xs text-white/30 mt-1">JPG, PNG (Maks. 5MB)</p>
                                     </div>
                                 @endif

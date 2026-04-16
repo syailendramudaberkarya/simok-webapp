@@ -6,6 +6,7 @@ use App\Mail\PendaftaranBerhasil;
 use App\Models\ActivityLog;
 use App\Models\Anggota;
 use App\Models\User;
+use App\DataTransferObjects\KtpData;
 use App\Services\KtpOcrService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -130,12 +131,8 @@ class PendaftaranAnggota extends Component
     public function rules(): array
     {
         return [
-            'fotoKtp' => $this->fotoKtp instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120']
-                : ['required', 'string'],
-            'fotoWajah' => $this->fotoWajah instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile
-                ? ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120']
-                : ['required', 'string'],
+            'fotoKtp' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
+            'fotoWajah' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
             'nik' => ['required', 'string', 'size:16', 'regex:/^\d{16}$/', 'unique:anggota,nik'],
             'namaLengkap' => ['required', 'string', 'min:3', 'regex:/^[a-zA-Z\s\.\']+$/'],
             'tempatLahir' => ['required', 'string', 'min:2'],
@@ -200,42 +197,60 @@ class PendaftaranAnggota extends Component
         ];
     }
 
-    public function updatedFotoKtp()
+    public function updatedFotoKtp(): void
     {
+        if (! $this->fotoKtp) {
+            return;
+        }
+
         $this->validateOnly('fotoKtp');
         $this->scanMessage = null;
         $this->scanSuccess = false;
 
         try {
-            // Get path directly without moving the file
-            $ktpFullPath = $this->fotoKtp->getRealPath();
+            Log::info('Automatic KTP OCR starting...', ['file' => $this->fotoKtp->getClientOriginalName()]);
 
-            // Scan using service
-            $ocrService = app(KtpOcrService::class);
-            $parsedData = $ocrService->scan($ktpFullPath);
+            $ktpData = app(KtpOcrService::class)->scan($this->fotoKtp->getRealPath());
 
-            if (!empty($parsedData) && count($parsedData) > 0) {
-                $this->nik = $parsedData['nik'] ?? $this->nik;
-                $this->namaLengkap = $parsedData['nama'] ?? $this->namaLengkap;
-                $this->tempatLahir = $parsedData['tempat_lahir'] ?? $this->tempatLahir;
-                $this->tanggalLahir = $parsedData['tanggal_lahir'] ?? $this->tanggalLahir;
-                $this->jenisKelamin = $parsedData['jenis_kelamin'] ?? $this->jenisKelamin;
-                $this->agama = $parsedData['agama'] ?? $this->agama;
-                $this->alamat = $parsedData['alamat'] ?? $this->alamat;
-                $this->rtRw = $parsedData['rt_rw'] ?? $this->rtRw;
-                $this->kelurahan = $parsedData['kelurahan'] ?? $this->kelurahan;
-                $this->kecamatan = $parsedData['kecamatan'] ?? $this->kecamatan;
+            if ($ktpData->isEmpty()) {
+                $this->scanMessage = 'Gagal memindai data otomatis. Silakan isi formulir secara manual.';
+                Log::warning('KTP OCR returned no data');
 
-                $this->scanSuccess = true;
-                $this->scanMessage = 'Formulir telah terisi otomatis berdasarkan KTP, harap periksa kembali data di bawah.';
-            } else {
-                $this->scanSuccess = false;
-                $this->scanMessage = 'Gagal mengekstrak data otomatis. Silakan isi form di bawah.';
+                return;
             }
+
+            $this->applyKtpData($ktpData);
+            $this->scanSuccess = true;
+            $this->scanMessage = 'Data KTP berhasil dipindai otomatis. Harap teliti kembali hasil pengisian.';
+            Log::info('KTP OCR Success', ['fields' => $ktpData->extractedFieldCount()]);
         } catch (\Exception $e) {
             Log::error('OCR Error: ' . $e->getMessage());
-            $this->scanSuccess = false;
-            $this->scanMessage = 'Terjadi kesalahan saat pemindaian KTP.';
+            $this->scanMessage = 'Pemindaian otomatis tidak berhasil. Silakan isi secara manual.';
+        }
+    }
+
+    /**
+     * Apply scanned KTP data to form fields.
+     */
+    private function applyKtpData(KtpData $data): void
+    {
+        $fieldMap = [
+            'nik' => 'nik',
+            'nama' => 'namaLengkap',
+            'tempatLahir' => 'tempatLahir',
+            'tanggalLahir' => 'tanggalLahir',
+            'jenisKelamin' => 'jenisKelamin',
+            'agama' => 'agama',
+            'alamat' => 'alamat',
+            'rtRw' => 'rtRw',
+            'kelurahan' => 'kelurahan',
+            'kecamatan' => 'kecamatan',
+        ];
+
+        foreach ($fieldMap as $dtoField => $formField) {
+            if ($data->{$dtoField} !== null) {
+                $this->{$formField} = $data->{$dtoField};
+            }
         }
     }
 
