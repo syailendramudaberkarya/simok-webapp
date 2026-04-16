@@ -1,58 +1,64 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SiMOK (Sistem Informasi Manajemen Organisasi Keanggotaan)
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+    <strong>Sistem Manajemen Keanggotaan Modern berbasis Laravel 13</strong>
 </p>
 
-## About Laravel
+SiMOK adalah platform manajemen organisasi yang dirancang untuk mengelola data keanggotaan secara terpusat, efisien, dan modern. Aplikasi ini memfokuskan pada kemudahan pendaftaran, validasi data regional, dan pembuatan identitas digital bagi setiap anggota.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- 📝 **Pendaftaran Mandiri & Manual**: Alur pendaftaran yang fleksibel bagi calon anggota maupun input langsung oleh admin.
+- 🗺️ **Integrasi Data Regional**: Validasi wilayah berdasarkan data Provinsi, Kabupaten, Kecamatan, hingga Desa di Indonesia.
+- 🆔 **Nomor Anggota Otomatis**: Generasi nomor anggota unik yang mengikuti standarisasi kode wilayah.
+- 🪪 **Kartu Anggota Digital**: Pembuatan kartu anggota otomatis dengan QR Code yang dapat diunduh (PDF) atau dilihat secara langsung.
+- 🔐 **Manajemen Hak Akses (RBAC)**: Pengaturan peran (Admin, Anggota) yang ketat menggunakan Spatie Laravel Permission.
+- 📧 **Notifikasi Email**: Sistem pemberitahuan otomatis untuk status pendaftaran dan persetujuan anggota.
+- 📊 **Dashboard Admin**: Ringkasan data statistik dan kontrol penuh atas manajemen data anggota.
+- 🎨 **UI Modern & Responsif**: Dibangun dengan Tailwind CSS 4 untuk pengalaman pengguna yang premium di berbagai perangkat.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🚀 Teknologi Utama
 
-## Learning Laravel
+- **Framework**: [Laravel 13](https://laravel.com)
+- **Frontend**: [Livewire 4](https://livewire.laravel.com) & [Tailwind CSS 4](https://tailwindcss.com)
+- **Database**: PostgreSQL / MySQL (Support JSON & Spatial data)
+- **Reports**: [DOMPDF](https://github.com/barryvdh/laravel-dompdf) untuk PDF Generation
+- **Security**: [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission/v6/introduction)
+- **Testing**: [Pest PHP 4](https://pestphp.com)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠️ Instalasi
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Pastikan Anda memiliki PHP 8.4+ dan Composer terinstal.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+1. **Clone repository:**
+   ```bash
+   git clone https://github.com/syailendramudaberkarya/simok-webapp.git
+   cd simok-webapp
+   ```
 
-## Agentic Development
+2. **Setup environment:**
+   ```bash
+   composer run setup
+   ```
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+3. **Inisialisasi Database:**
+   ```bash
+   php artisan migrate --seed
+   ```
 
-```bash
-composer require laravel/boost --dev
+4. **Jalankan aplikasi:**
+   ```bash
+   composer run dev
+   ```
 
-php artisan boost:install
-```
+## 📂 Struktur Proyek
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+- `app/Livewire`: Komponen reaktif untuk UI.
+- `app/Models`: Definisi model data anggota dan regional.
+- `database/migrations`: Struktur tabel database termasuk data wilayah.
+- `resources/views/livewire`: Template Blade untuk antarmuka pengguna.
+- `tests`: Suite pengujian menggunakan Pest.
 
-## Contributing
+## 📋 Lisensi
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proyek ini dilisensikan di bawah [MIT license](https://opensource.org/licenses/MIT).
