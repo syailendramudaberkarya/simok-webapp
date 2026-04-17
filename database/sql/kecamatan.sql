@@ -1,42 +1,3 @@
-/*
- Navicat MySQL Dump SQL
-
- Source Server         : hkti.id
- Source Server Type    : MariaDB
- Source Server Version : 100625 (10.6.25-MariaDB)
- Source Host           : 119.235.255.51:4981
- Source Schema         : nutrihub_hkti
-
- Target Server Type    : MariaDB
- Target Server Version : 100625 (10.6.25-MariaDB)
- File Encoding         : 65001
-
- Date: 14/04/2026 12:47:30
-*/
-
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
--- Table structure for kecamatan
--- ----------------------------
-DROP TABLE IF EXISTS `kecamatan`;
-CREATE TABLE `kecamatan` (
-  `id` char(6) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `idkabupaten` char(6) DEFAULT NULL,
-  `kecamatan` varchar(80) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `idkecsatusehat` char(8) DEFAULT NULL,
-  `code` varchar(10) DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `id` (`id`) USING BTREE,
-  KEY `idkabupaten` (`idkabupaten`) USING BTREE,
-  KEY `idkecsatusehat` (`idkecsatusehat`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- ----------------------------
--- Records of kecamatan
--- ----------------------------
-BEGIN;
 INSERT INTO `kecamatan` (`id`, `idkabupaten`, `kecamatan`, `idkecsatusehat`, `code`) VALUES ('0001', '0049', 'SIMPATI', NULL, '');
 INSERT INTO `kecamatan` (`id`, `idkabupaten`, `kecamatan`, `idkecsatusehat`, `code`) VALUES ('0002', '0106', 'LAIN-LAIN', NULL, '');
 INSERT INTO `kecamatan` (`id`, `idkabupaten`, `kecamatan`, `idkecsatusehat`, `code`) VALUES ('0003', '0502', 'FENA FAFAN', '810906', '810906');
@@ -8652,6 +8613,3 @@ INSERT INTO `kecamatan` (`id`, `idkabupaten`, `kecamatan`, `idkecsatusehat`, `co
 INSERT INTO `kecamatan` (`id`, `idkabupaten`, `kecamatan`, `idkecsatusehat`, `code`) VALUES ('127207', '0036', 'Siantar Sitalasari', NULL, '127207');
 INSERT INTO `kecamatan` (`id`, `idkabupaten`, `kecamatan`, `idkecsatusehat`, `code`) VALUES ('740242', '0348', 'Tongauna Utara', NULL, '740242');
 INSERT INTO `kecamatan` (`id`, `idkabupaten`, `kecamatan`, `idkecsatusehat`, `code`) VALUES ('122012', '0474', 'Ujung Batu', NULL, '122012');
-COMMIT;
-
-SET FOREIGN_KEY_CHECKS = 1;

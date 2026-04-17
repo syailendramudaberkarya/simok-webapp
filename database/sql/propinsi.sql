@@ -1,47 +1,3 @@
-/*
- Navicat MySQL Dump SQL
-
- Source Server         : hkti.id
- Source Server Type    : MariaDB
- Source Server Version : 100625 (10.6.25-MariaDB)
- Source Host           : 119.235.255.51:4981
- Source Schema         : nutrihub_hkti
-
- Target Server Type    : MariaDB
- Target Server Version : 100625 (10.6.25-MariaDB)
- File Encoding         : 65001
-
- Date: 14/04/2026 12:47:07
-*/
-
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
--- Table structure for propinsi
--- ----------------------------
-DROP TABLE IF EXISTS `propinsi`;
-CREATE TABLE `propinsi` (
-  `id` char(2) NOT NULL,
-  `code` varchar(10) NOT NULL,
-  `propinsi` varchar(100) NOT NULL,
-  `latitude` decimal(10,8) DEFAULT NULL,
-  `longitude` decimal(11,8) DEFAULT NULL,
-  `island` varchar(50) DEFAULT NULL,
-  `timezone` varchar(20) DEFAULT 'WIB',
-  `total_members` int(10) unsigned DEFAULT 0,
-  `total_cities` int(10) unsigned DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `uk_code` (`code`) USING BTREE,
-  KEY `idx_island` (`island`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ----------------------------
--- Records of propinsi
--- ----------------------------
-BEGIN;
 INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('01', '11', 'Aceh', 4.69513500, 96.74939900, 'Sumatera', 'WIB', 18250, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:18');
 INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('02', '12', 'Sumatera Utara', 3.59703100, 98.67851300, 'Sumatera', 'WIB', 89432, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:24');
 INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('03', '13', 'Sumatera Barat', -0.73994000, 100.80000300, 'Sumatera', 'WIB', 45230, 0, '2026-02-01 21:15:50', '2026-02-09 13:57:33');
@@ -81,6 +37,3 @@ INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `isla
 INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('95', '95', 'Papua Pegunungan', NULL, NULL, NULL, 'WIB', 0, 0, '2026-02-09 16:04:29', '2026-02-09 16:04:29');
 INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('96', '96', 'Papua Barat Daya', NULL, NULL, NULL, 'WIB', 0, 0, '2026-02-09 16:03:57', '2026-02-09 16:04:38');
 INSERT INTO `propinsi` (`id`, `code`, `propinsi`, `latitude`, `longitude`, `island`, `timezone`, `total_members`, `total_cities`, `created_at`, `updated_at`) VALUES ('99', '99', 'Luar Negeri', NULL, NULL, NULL, 'WIB', 0, 0, '2026-02-09 16:06:56', '2026-02-09 16:06:56');
-COMMIT;
-
-SET FOREIGN_KEY_CHECKS = 1;

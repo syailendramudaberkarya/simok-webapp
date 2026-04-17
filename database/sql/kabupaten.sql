@@ -1,39 +1,3 @@
-/*
- Navicat MySQL Dump SQL
-
- Source Server         : hkti.id
- Source Server Type    : MariaDB
- Source Server Version : 100625 (10.6.25-MariaDB)
- Source Host           : 119.235.255.51:4981
- Source Schema         : nutrihub_hkti
-
- Target Server Type    : MariaDB
- Target Server Version : 100625 (10.6.25-MariaDB)
- File Encoding         : 65001
-
- Date: 14/04/2026 12:47:19
-*/
-
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
--- Table structure for kabupaten
--- ----------------------------
-DROP TABLE IF EXISTS `kabupaten`;
-CREATE TABLE `kabupaten` (
-  `id` char(5) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `idpropinsi` char(2) DEFAULT NULL,
-  `kabupaten` varchar(80) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `idkabsatusehat` char(6) DEFAULT NULL,
-  `code` varchar(10) DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
--- ----------------------------
--- Records of kabupaten
--- ----------------------------
-BEGIN;
 INSERT INTO `kabupaten` (`id`, `idpropinsi`, `kabupaten`, `idkabsatusehat`, `code`) VALUES ('0001', '01', 'KOTA LANGSA', '1174', '1174');
 INSERT INTO `kabupaten` (`id`, `idpropinsi`, `kabupaten`, `idkabsatusehat`, `code`) VALUES ('0002', '01', 'KAB. GAYO LUES', '1113', '1113');
 INSERT INTO `kabupaten` (`id`, `idpropinsi`, `kabupaten`, `idkabsatusehat`, `code`) VALUES ('0003', '01', 'KAB. ACEH SELATAN', '1101', '1101');
