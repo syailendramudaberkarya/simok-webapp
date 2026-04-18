@@ -26,16 +26,16 @@ class Dashboard extends Component
     {
         $this->loadStats();
         $this->loadChartData();
-        $this->pendaftaranTerbaru = Anggota::latest()->take(5)->get();
+        $this->pendaftaranTerbaru = Anggota::scoped(auth()->user())->latest()->take(5)->get();
     }
 
     private function loadStats()
     {
-        $this->totalAnggota = Anggota::count();
-        $this->menungguPersetujuan = Anggota::where('status', 'menunggu')->count();
-        $this->disetujui = Anggota::where('status', 'disetujui')->count();
-        $this->ditolak = Anggota::where('status', 'ditolak')->count();
-        $this->baruBulanIni = Anggota::whereMonth('created_at', Carbon::now()->month)
+        $this->totalAnggota = Anggota::scoped(auth()->user())->count();
+        $this->menungguPersetujuan = Anggota::scoped(auth()->user())->where('status', 'menunggu')->count();
+        $this->disetujui = Anggota::scoped(auth()->user())->where('status', 'disetujui')->count();
+        $this->ditolak = Anggota::scoped(auth()->user())->where('status', 'ditolak')->count();
+        $this->baruBulanIni = Anggota::scoped(auth()->user())->whereMonth('created_at', Carbon::now()->month)
                                      ->whereYear('created_at', Carbon::now()->year)
                                      ->count();
     }
@@ -48,7 +48,7 @@ class Dashboard extends Component
             $months->push(Carbon::now()->subMonths($i)->format('Y-m'));
         }
 
-        $data = Anggota::select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"), DB::raw('count(*) as total'))
+        $data = Anggota::scoped(auth()->user())->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"), DB::raw('count(*) as total'))
             ->where('created_at', '>=', Carbon::now()->subMonths(5)->startOfMonth())
             ->groupBy('month')
             ->pluck('total', 'month');

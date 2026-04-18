@@ -12,12 +12,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'role'])]
+#[Fillable([
+    'name', 'username', 'email', 'password', 'role', 'tingkatan', 'kantor_id',
+])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
+
+    /**
+     * Get the kantor associated with the user.
+     */
+    public function kantor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Kantor::class);
+    }
 
     /**
      * Get the attributes that should be cast.

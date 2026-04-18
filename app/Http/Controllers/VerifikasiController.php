@@ -13,8 +13,6 @@ class VerifikasiController extends Controller
     public function show($nomor)
     {
         $anggota = Anggota::where('nomor_anggota', $nomor)->first();
-
-        // Tampilkan view bahkan jika tidak ditemukan (untuk beri feedback invalid)
         return view('verifikasi', compact('anggota', 'nomor'));
     }
 }

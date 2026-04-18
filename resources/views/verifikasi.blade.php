@@ -9,7 +9,7 @@
                 <p class="text-sm text-white/60 mt-1">Sistem Informasi Manajemen Organisasi Keanggotaan</p>
             </div>
 
-            <div class="glass rounded-2xl overflow-hidden">
+            <div class="bg-white/10 backdrop-blur-2xl border border-white/10 shadow-xl rounded-2xl overflow-hidden">
                 @if($anggota)
                     @if($anggota->status === 'disetujui')
                         <div class="bg-gradient-to-r from-emerald-500/30 to-emerald-600/30 p-6 text-center border-b border-emerald-400/20">

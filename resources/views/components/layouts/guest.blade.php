@@ -13,7 +13,7 @@
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-mesh font-sans antialiased">
+<body class="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_20%_50%,oklch(0.4_0.2_250_/_0.3)_0%,transparent_50%),radial-gradient(ellipse_at_80%_20%,oklch(0.35_0.15_300_/_0.25)_0%,transparent_50%),radial-gradient(ellipse_at_60%_80%,oklch(0.3_0.18_220_/_0.2)_0%,transparent_50%)] font-sans antialiased">
     <div class="relative z-10">
         {{ $slot }}
     </div>

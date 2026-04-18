@@ -29,6 +29,10 @@ class InputManual extends Component
     public string $tanggalLahir = '';
     public string $jenisKelamin = '';
     public string $agama = '';
+    public string $statusPerkawinan = '';
+    public string $pekerjaan = '';
+    public string $kewarganegaraan = 'WNI';
+    public string $golonganDarah = '';
     public string $alamat = '';
     public string $rtRw = '';
     public string $kelurahan = '';
@@ -38,8 +42,10 @@ class InputManual extends Component
     public $idkecamatan;
     public $idkelurahan;
     public string $email = '';
+    public string $username = '';
     public string $password = '';
     public string $noTelepon = '';
+    public string $tingkatan = 'PR';
 
     public string $nomorAnggotaType = 'auto'; // 'auto' or 'manual'
     public string $manualNomorAnggota = '';
@@ -54,7 +60,30 @@ class InputManual extends Component
 
     public function mount()
     {
-        $this->provinces = \App\Models\Propinsi::orderBy('propinsi')->get();
+        $user = auth()->user();
+        $kantor = $user->kantor;
+
+        if ($user->tingkatan === 'DPN' || !$kantor) {
+            $this->provinces = \App\Models\Propinsi::orderBy('propinsi')->get();
+        } else {
+            // Restrict based on admin scope
+            $this->provinces = \App\Models\Propinsi::where('id', $kantor->idpropinsi)->get();
+            $this->idpropinsi = $kantor->idpropinsi;
+            
+            // Auto-load sub-regions
+            $this->cities = \App\Models\Kabupaten::where('idpropinsi', $this->idpropinsi)->orderBy('kabupaten')->get();
+            if (in_array($user->tingkatan, ['DPC', 'PR', 'PAR'])) {
+                $this->idkabupaten = $kantor->idkabupaten;
+                $this->districts = \App\Models\Kecamatan::where('idkabupaten', $this->idkabupaten)->orderBy('kecamatan')->get();
+            }
+            if (in_array($user->tingkatan, ['PR', 'PAR'])) {
+                $this->idkecamatan = $kantor->idkecamatan;
+                $this->villages = \App\Models\Kelurahan::where('idkecamatan', $this->idkecamatan)->orderBy('kelurahan')->get();
+            }
+            if ($user->tingkatan === 'PAR') {
+                $this->idkelurahan = $kantor->idkelurahan;
+            }
+        }
     }
 
     public function updatedIdpropinsi($value)
@@ -108,6 +137,10 @@ class InputManual extends Component
             'tanggalLahir' => ['required', 'date', 'before:today'],
             'jenisKelamin' => ['required', 'in:Laki-laki,Perempuan'],
             'agama' => ['required', 'string', 'in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu'],
+            'statusPerkawinan' => ['required', 'string'],
+            'pekerjaan' => ['required', 'string'],
+            'kewarganegaraan' => ['required', 'string'],
+            'golonganDarah' => ['nullable', 'string', 'max:5'],
             'alamat' => ['required', 'string', 'min:10'],
             'rtRw' => ['nullable', 'string', 'max:10'],
             'idpropinsi' => ['required', 'string'],
@@ -117,11 +150,13 @@ class InputManual extends Component
             'kelurahan' => ['required', 'string', 'min:2'],
             'kecamatan' => ['required', 'string', 'min:2'],
             'email' => ['required', 'email', 'unique:users,email'],
+            'username' => ['required', 'string', 'min:3', 'max:20', 'unique:users,username', 'regex:/^[a-zA-Z0-9_.]+$/'],
             'password' => ['required', 'string', 'min:8', 'regex:/[A-Z]/', 'regex:/[0-9]/'],
             'noTelepon' => ['required', 'string', 'regex:/^(\+62|08)\d{8,13}$/'],
             'fotoKtp' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
             'fotoWajah' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
-            'nomorAnggotaType' => ['required', 'in:auto,manual']
+            'nomorAnggotaType' => ['required', 'in:auto,manual'],
+            'tingkatan' => ['required', 'in:DPN,DPD,DPC,PR,PAR']
         ];
 
         if ($this->nomorAnggotaType === 'manual') {
@@ -151,6 +186,25 @@ class InputManual extends Component
 
     public function simpan()
     {
+        $user = auth()->user();
+        $kantor = $user->kantor;
+
+        // Force regional assignments based on admin level if not DPN
+        if ($user->tingkatan !== 'DPN' && $kantor) {
+            if (in_array($user->tingkatan, ['DPD', 'DPC', 'PR', 'PAR'])) {
+                $this->idpropinsi = $kantor->idpropinsi;
+            }
+            if (in_array($user->tingkatan, ['DPC', 'PR', 'PAR'])) {
+                $this->idkabupaten = $kantor->idkabupaten;
+            }
+            if (in_array($user->tingkatan, ['PR', 'PAR'])) {
+                $this->idkecamatan = $kantor->idkecamatan;
+            }
+            if ($user->tingkatan === 'PAR') {
+                $this->idkelurahan = $kantor->idkelurahan;
+            }
+        }
+
         $this->validate();
 
         DB::transaction(function () {
@@ -160,6 +214,7 @@ class InputManual extends Component
             $user = User::create([
                 'name' => $this->namaLengkap,
                 'email' => $this->email,
+                'username' => $this->username,
                 'password' => Hash::make($this->password),
                 'role' => 'anggota',
             ]);
@@ -199,6 +254,10 @@ class InputManual extends Component
                 'tanggal_lahir' => $this->tanggalLahir,
                 'jenis_kelamin' => $this->jenisKelamin,
                 'agama' => $this->agama,
+                'status_perkawinan' => $this->statusPerkawinan,
+                'pekerjaan' => $this->pekerjaan,
+                'kewarganegaraan' => $this->kewarganegaraan,
+                'golongan_darah' => $this->golonganDarah,
                 'alamat' => $this->alamat,
                 'rt_rw' => $this->rtRw,
                 'kelurahan' => $this->kelurahan,
@@ -208,6 +267,7 @@ class InputManual extends Component
                 'idkecamatan' => $this->idkecamatan,
                 'idkelurahan' => $this->idkelurahan,
                 'no_telepon' => $this->noTelepon,
+                'tingkatan' => $this->tingkatan,
                 'foto_ktp_path' => $ktpPath,
                 'foto_wajah_path' => $wajahPath,
                 'status' => 'disetujui',

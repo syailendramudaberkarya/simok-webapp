@@ -8,7 +8,7 @@
             <p class="text-sm text-white/60 mt-1">Masukkan email Anda untuk menerima link reset.</p>
         </div>
 
-        <div class="glass rounded-2xl p-8">
+        <div class="bg-white/10 backdrop-blur-2xl border border-white/10 shadow-xl rounded-2xl p-8">
             @if (session('status'))
                 <div class="p-3 mb-6 text-sm text-emerald-200 rounded-xl bg-emerald-500/20 border border-emerald-400/30">
                     {{ session('status') }}
@@ -19,11 +19,11 @@
                 <form wire:submit.prevent="sendResetLink" class="space-y-5">
                     <div>
                         <label for="email" class="block mb-2 text-sm font-medium text-white/80">Email</label>
-                        <input type="email" wire:model="email" id="email" class="input-glass w-full rounded-xl px-4 py-3 text-sm" placeholder="nama@email.com" required>
+                        <input type="email" wire:model="email" id="email" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-3 text-sm" placeholder="nama@email.com" required>
                         @error('email') <span class="text-sm text-red-400 mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
-                    <button type="submit" wire:loading.attr="disabled" class="btn-gradient w-full rounded-xl px-5 py-3 text-sm cursor-pointer">
+                    <button type="submit" wire:loading.attr="disabled" class="bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-0.5 active:translate-y-0 w-full rounded-xl px-5 py-3 text-sm cursor-pointer">
                         <span wire:loading.remove wire:target="sendResetLink">Kirim Link Reset</span>
                         <span wire:loading wire:target="sendResetLink">Mengirim...</span>
                     </button>

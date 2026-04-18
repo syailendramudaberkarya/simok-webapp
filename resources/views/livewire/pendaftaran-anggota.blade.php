@@ -7,7 +7,7 @@
         </div>
 
         <!-- Card -->
-        <div class="glass rounded-2xl p-6 sm:p-8">
+        <div class="bg-white/10 backdrop-blur-2xl border border-white/10 shadow-xl rounded-2xl p-6 sm:p-8">
             @if($registrationComplete)
                 <div class="text-center py-10">
                     <div
@@ -17,10 +17,11 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-bold text-white mb-2">Pendaftaran Berhasil!</h3>
-                    <p class="text-white/60 mb-8 max-w-md mx-auto">Data pendaftaran Anda telah kami terima dan sedang dalam
-                        proses verifikasi. Email konfirmasi telah dikirim ke <strong
-                            class="text-white">{{ $email }}</strong>.</p>
-                    <a href="/" class="btn-gradient inline-block rounded-xl px-8 py-3 text-sm">Kembali ke Beranda</a>
+                    <p class="text-white/60 mb-8 max-w-md mx-auto text-balance">
+                        Data pendaftaran Anda telah kami terima dan sedang dalam tahap verifikasi oleh administrator.
+                        Silakan masuk ke akun Anda secara berkala untuk memantau status pendaftaran secara langsung melalui dashboard.
+                    </p>
+                    <a href="/" class="bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-0.5 active:translate-y-0 inline-block rounded-xl px-8 py-3 text-sm">Kembali ke Beranda</a>
                 </div>
             @else
                 <form wire:submit.prevent="daftar">
@@ -120,14 +121,14 @@
                         <div>
                             <label for="nik" class="block mb-1.5 text-sm font-medium text-white/70">NIK</label>
                             <input type="text" wire:model="nik" id="nik"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" placeholder="16 Digit NIK">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="16 Digit NIK">
                             @error('nik') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label for="namaLengkap" class="block mb-1.5 text-sm font-medium text-white/70">Nama
                                 Lengkap</label>
                             <input type="text" wire:model="namaLengkap" id="namaLengkap"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Nama Sesuai KTP">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Nama Sesuai KTP">
                             @error('namaLengkap') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
                             @enderror
                         </div>
@@ -135,7 +136,7 @@
                             <label for="tempatLahir" class="block mb-1.5 text-sm font-medium text-white/70">Tempat
                                 Lahir</label>
                             <input type="text" wire:model="tempatLahir" id="tempatLahir"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
                             @error('tempatLahir') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
                             @enderror
                         </div>
@@ -143,7 +144,7 @@
                             <label for="tanggalLahir" class="block mb-1.5 text-sm font-medium text-white/70">Tanggal
                                 Lahir</label>
                             <input type="date" wire:model="tanggalLahir" id="tanggalLahir"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
                             @error('tanggalLahir') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
                             @enderror
                         </div>
@@ -151,7 +152,7 @@
                             <label for="jenisKelamin" class="block mb-1.5 text-sm font-medium text-white/70">Jenis
                                 Kelamin</label>
                             <select wire:model="jenisKelamin" id="jenisKelamin"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
                                 <option value="">Pilih</option>
                                 <option value="Laki-laki">Laki-laki</option>
                                 <option value="Perempuan">Perempuan</option>
@@ -161,7 +162,7 @@
                         </div>
                         <div>
                             <label for="agama" class="block mb-1.5 text-sm font-medium text-white/70">Agama</label>
-                            <select wire:model="agama" id="agama" class="input-glass w-full rounded-xl px-4 py-2.5 text-sm">
+                            <select wire:model="agama" id="agama" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
                                 <option value="">Pilih</option>
                                 <option value="Islam">Islam</option>
                                 <option value="Kristen">Kristen</option>
@@ -172,6 +173,38 @@
                             </select>
                             @error('agama') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
+                        <div>
+                            <label for="statusPerkawinan" class="block mb-1.5 text-sm font-medium text-white/70">Status Perkawinan</label>
+                            <select wire:model="statusPerkawinan" id="statusPerkawinan" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
+                                <option value="">Pilih</option>
+                                <option value="Belum Kawin">Belum Kawin</option>
+                                <option value="Kawin">Kawin</option>
+                                <option value="Cerai Hidup">Cerai Hidup</option>
+                                <option value="Cerai Mati">Cerai Mati</option>
+                            </select>
+                            @error('statusPerkawinan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label for="golonganDarah" class="block mb-1.5 text-sm font-medium text-white/70">Golongan Darah</label>
+                            <select wire:model="golonganDarah" id="golonganDarah" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
+                                <option value="">-</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="AB">AB</option>
+                                <option value="O">O</option>
+                            </select>
+                            @error('golonganDarah') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label for="pekerjaan" class="block mb-1.5 text-sm font-medium text-white/70">Pekerjaan</label>
+                            <input type="text" wire:model="pekerjaan" id="pekerjaan" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: KARYAWAN SWASTA">
+                            @error('pekerjaan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label for="kewarganegaraan" class="block mb-1.5 text-sm font-medium text-white/70">Kewarganegaraan</label>
+                            <input type="text" wire:model="kewarganegaraan" id="kewarganegaraan" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="WNI">
+                            @error('kewarganegaraan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
                     </div>
 
                     {{-- Alamat --}}
@@ -180,65 +213,38 @@
                         <div class="md:col-span-2">
                             <label for="alamat" class="block mb-1.5 text-sm font-medium text-white/70">Jalan/Dusun</label>
                             <textarea wire:model="alamat" id="alamat" rows="2"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm"></textarea>
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm"></textarea>
                             @error('alamat') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label for="rtRw" class="block mb-1.5 text-sm font-medium text-white/70">RT / RW</label>
                             <input type="text" wire:model="rtRw" id="rtRw"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" placeholder="001/002">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="001/002">
                             @error('rtRw') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div class="md:col-span-1">
-                            <label for="idpropinsi" class="block mb-1.5 text-sm font-medium text-white/70">Provinsi</label>
-                            <select wire:model.live="idpropinsi" id="idpropinsi"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm">
-                                <option value="">Pilih Provinsi</option>
-                                @foreach($provinces as $province)
-                                    <option value="{{ $province->id }}">{{ $province->propinsi }}</option>
-                                @endforeach
-                            </select>
-                            @error('idpropinsi') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
+                            <label for="propinsi" class="block mb-1.5 text-sm font-medium text-white/70">Provinsi</label>
+                            <input type="text" wire:model.live="propinsi" id="propinsi"
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: Jawa Timur">
+                            @error('propinsi') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div class="md:col-span-1">
-                            <label for="idkabupaten" class="block mb-1.5 text-sm font-medium text-white/70">Kota /
-                                Kabupaten</label>
-                            <select wire:model.live="idkabupaten" id="idkabupaten"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" {{ empty($cities) ? 'disabled' : '' }}>
-                                <option value="">Pilih Kota/Kab</option>
-                                @foreach($cities as $city)
-                                    <option value="{{ $city->id }}">{{ $city->kabupaten }}</option>
-                                @endforeach
-                            </select>
-                            @error('idkabupaten') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
+                            <label for="kabupaten" class="block mb-1.5 text-sm font-medium text-white/70">Kota / Kabupaten</label>
+                            <input type="text" wire:model.live="kabupaten" id="kabupaten"
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: KAB. SAMPANG atau Kota Surabaya">
+                            @error('kabupaten') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div class="md:col-span-1">
-                            <label for="idkecamatan"
-                                class="block mb-1.5 text-sm font-medium text-white/70">Kecamatan</label>
-                            <select wire:model.live="idkecamatan" id="idkecamatan"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" {{ empty($districts) ? 'disabled' : '' }}>
-                                <option value="">Pilih Kecamatan</option>
-                                @foreach($districts as $district)
-                                    <option value="{{ $district->id }}">{{ $district->kecamatan }}</option>
-                                @endforeach
-                            </select>
-                            @error('idkecamatan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
+                            <label for="kecamatan" class="block mb-1.5 text-sm font-medium text-white/70">Kecamatan</label>
+                            <input type="text" wire:model.live="kecamatan" id="kecamatan"
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: SAMPANG">
+                            @error('kecamatan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div class="md:col-span-1">
-                            <label for="idkelurahan" class="block mb-1.5 text-sm font-medium text-white/70">Kelurahan /
-                                Desa</label>
-                            <select wire:model.live="idkelurahan" id="idkelurahan"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" {{ empty($villages) ? 'disabled' : '' }}>
-                                <option value="">Pilih Kelurahan/Desa</option>
-                                @foreach($villages as $village)
-                                    <option value="{{ $village->id }}">{{ $village->kelurahan }}</option>
-                                @endforeach
-                            </select>
-                            @error('idkelurahan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
-                            @enderror
+                            <label for="kelurahan" class="block mb-1.5 text-sm font-medium text-white/70">Kelurahan / Desa</label>
+                            <input type="text" wire:model.live="kelurahan" id="kelurahan"
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: Dalpenang">
+                            @error('kelurahan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
@@ -249,36 +255,53 @@
                             <label for="noTelepon" class="block mb-1.5 text-sm font-medium text-white/70">No.
                                 Telepon/WA</label>
                             <input type="text" wire:model="noTelepon" id="noTelepon"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" placeholder="08xxxxxxxxxx">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="08xxxxxxxxxx">
                             @error('noTelepon') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span>
                             @enderror
                         </div>
                         <div>
-                            <label for="email" class="block mb-1.5 text-sm font-medium text-white/70">Email</label>
+                            <label for="email" class="block mb-1.5 text-sm font-medium text-white/70">Email / ID</label>
                             <input type="email" wire:model="email" id="email"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" placeholder="email@contoh.com">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="email@contoh.com">
                             @error('email') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label for="username" class="block mb-1.5 text-sm font-medium text-white/70">Username</label>
+                            <input type="text" wire:model="username" id="username"
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="username_kamu">
+                            @error('username') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label for="password" class="block mb-1.5 text-sm font-medium text-white/70">Password</label>
                             <input type="password" wire:model="password" id="password"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" placeholder="••••••••">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="••••••••">
                             @error('password') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label for="passwordConfirmation"
                                 class="block mb-1.5 text-sm font-medium text-white/70">Konfirmasi Password</label>
                             <input type="password" wire:model="passwordConfirmation" id="passwordConfirmation"
-                                class="input-glass w-full rounded-xl px-4 py-2.5 text-sm" placeholder="••••••••">
+                                class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="••••••••">
                             @error('passwordConfirmation') <span
                             class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="tingkatan" class="block mb-1.5 text-sm font-medium text-white/70">Tingkatan Organisasi</label>
+                            <select wire:model="tingkatan" id="tingkatan" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
+                                <option value="DPN">Dewan Pimpinan Nasional (DPN)</option>
+                                <option value="DPD">Dewan Pimpinan Daerah (DPD)</option>
+                                <option value="DPC">Dewan Pimpinan Cabang (DPC)</option>
+                                <option value="PR">Pimpinan Ranting (PR)</option>
+                                <option value="PAR">Pimpinan Anak Ranting (PAR)</option>
+                            </select>
+                            @error('tingkatan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
                     {{-- Submit --}}
                     <div class="flex items-center justify-end mt-8">
                         <button type="submit" wire:loading.attr="disabled"
-                            class="btn-gradient rounded-xl px-8 py-3 flex gap-1.5 text-sm cursor-pointer disabled:opacity-50">
+                            class="bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-0.5 active:translate-y-0 rounded-xl px-8 py-3 flex gap-1.5 text-sm cursor-pointer disabled:opacity-50">
                             <span wire:loading.remove wire:target="daftar">Daftar Sekarang</span>
                             <span wire:loading wire:target="daftar" class="flex items-center gap-2">
                                 <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"

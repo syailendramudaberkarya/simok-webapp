@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureAnggotaIsApproved
 {
     /**
-     * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
@@ -19,8 +18,6 @@ class EnsureAnggotaIsApproved
 
         if ($user && $user->isAnggota()) {
             if ($user->anggota && $user->anggota->isPending()) {
-                // Return to pending page or redirect back to profile if already inside.
-                // We'll restrict card access strictly.
                 if ($request->routeIs('anggota.kartu')) {
                     session()->flash('error', 'Keanggotaan Anda masih menunggu persetujuan.');
                     return redirect()->route('anggota.profil');

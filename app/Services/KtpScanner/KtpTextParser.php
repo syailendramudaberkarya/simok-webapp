@@ -33,10 +33,16 @@ class KtpTextParser
             'tanggal_lahir' => 'extractTanggalLahir',
             'jenis_kelamin' => 'extractJenisKelamin',
             'agama' => 'extractAgama',
+            'status_kawin' => 'extractStatusKawin',
+            'pekerjaan' => 'extractPekerjaan',
+            'kewarganegaraan' => 'extractKewarganegaraan',
+            'golongan_darah' => 'extractGolonganDarah',
             'alamat' => 'extractAlamat',
             'rt_rw' => 'extractRtRw',
             'kelurahan' => 'extractKelurahan',
             'kecamatan' => 'extractKecamatan',
+            'kabupaten' => 'extractKabupaten',
+            'provinsi' => 'extractProvinsi',
         ];
 
         foreach ($extractors as $field => $method) {
@@ -58,9 +64,7 @@ class KtpTextParser
         return preg_replace('/[^\S\n]+/', ' ', $text);
     }
 
-    /**
-     * Strip trailing KTP labels that sometimes bleed onto the same line.
-     */
+
     private function cleanTrailingLabels(string $value): string
     {
         $labels = 'Tempat|Tmp|Lahir|Tgl|Jenis|Kelamin|Agama|Status|Perkawinan|RT|RW|Kel|Desa|Kecamatan|Kec|Kabupaten|Kota|Provinsi';
@@ -69,9 +73,6 @@ class KtpTextParser
         return Str::squish($value);
     }
 
-    // ---------------------------------------------------------------
-    // Individual Field Extractors
-    // ---------------------------------------------------------------
 
     private function extractNik(): ?string
     {
@@ -98,8 +99,6 @@ class KtpTextParser
     }
 
     /**
-     * Extract birth place from "Tempat/Tgl Lahir" line.
-     * Birth place and date are parsed from the same regex but returned separately.
      */
     private function extractTempatLahir(): ?string
     {
@@ -120,8 +119,6 @@ class KtpTextParser
     }
 
     /**
-     * Shared regex for Tempat/Tgl Lahir line.
-     *
      * @param  array<int, string>|null  $matches
      */
     private function matchBirthLine(?array &$matches = null): bool
@@ -153,10 +150,70 @@ class KtpTextParser
         return null;
     }
 
+    private function extractStatusKawin(): ?string
+    {
+        // Handle common variations and OCR misreadings of "Status Perkawinan"
+        if (preg_match('/(?:Status\s*(?:Perkawinan|Perkawman|Perkavvinan))\s*[:=]?\s*([^\n]+)/i', $this->normalizedText, $m)) {
+            $val = trim($m[1]);
+            if (stripos($val, 'BELUM') !== false) return 'Belum Kawin';
+            if (stripos($val, 'CERAI MATI') !== false) return 'Cerai Mati';
+            if (stripos($val, 'CERAI HIDUP') !== false) return 'Cerai Hidup';
+            if (stripos($val, 'KAWIN') !== false || stripos($val, 'KAVVIN') !== false) return 'Kawin';
+            return Str::title(strtolower($val));
+        }
+
+        return null;
+    }
+
+    private function extractPekerjaan(): ?string
+    {
+        if (preg_match('/\b(?:Pekerjaan)\b\s*[:=]?\s*([^\n]+)/i', $this->normalizedText, $m)) {
+            return strtoupper(trim($m[1]));
+        }
+
+        return null;
+    }
+
+    private function extractKewarganegaraan(): ?string
+    {
+        if (preg_match('/\b(?:Kewarganegaraan)\b\s*[:=]?\s*([^\n]+)/i', $this->normalizedText, $m)) {
+            $val = strtoupper(trim($m[1]));
+            if (str_contains($val, 'WNI')) return 'WNI';
+            if (str_contains($val, 'WNA')) return 'WNA';
+            return $val;
+        }
+
+        return null;
+    }
+
+    private function extractGolonganDarah(): ?string
+    {
+        // Gol Darah is often small and misread.
+        // We look for the label and capture only A, B, O, or AB.
+        if (preg_match('/(?:Gol\.?\s*Darah|Gol)\s*[:=]?\s*([ABO0\-\s1I|]+)/i', $this->normalizedText, $m)) {
+            $val = strtoupper(trim($m[1]));
+            
+            // Priority 1: Check for AB
+            if (str_contains($val, 'AB')) return 'AB';
+            
+            // Priority 2: Check for B (check B before A if there's risk of noise, 
+            // but usually A and B are distinct enough unless OCR is very bad)
+            // However, we should be careful not to match 'B' inside 'AB' (handled by priority 1)
+            
+            // Let's use more strict matching for single letters
+            if (preg_match('/\bB\b/i', $val) || (str_contains($val, 'B') && !str_contains($val, 'AB'))) return 'B';
+            if (preg_match('/\bA\b/i', $val) || (str_contains($val, 'A') && !str_contains($val, 'AB'))) return 'A';
+            if (preg_match('/\bO\b/i', $val) || str_contains($val, 'O') || str_contains($val, '0')) return 'O';
+        }
+
+        return null;
+    }
+
     private function extractAlamat(): ?string
     {
-        if (preg_match('/(?:Alamat)\s*[:=]?\s*(.+?)(?=\s*(?:RT|RW|Kel|Desa|Kecamatan|Kec|Agama|$))/is', $this->normalizedText, $m)) {
-            return $this->cleanTrailingLabels($m[1]);
+        if (preg_match('/(?:Alamat|Alanat|Alatnat)\s*[:=]?\s*(.+?)(?=\s*(?:\bRT\b|\bRW\b|\bKel\b|\bDesa\b|\bKecamatan\b|\bAgama\b|$))/is', $this->normalizedText, $m)) {
+            $val = $m[1];
+            return Str::squish(trim($val));
         }
 
         return null;
@@ -174,7 +231,9 @@ class KtpTextParser
     private function extractKelurahan(): ?string
     {
         if (preg_match('/\b(?:Kel|Desa|Kelurahan|Kel\/Desa)\b\s*[\/\\\\]?\s*(?:Desa)?\s*[:=]?\s*([^\n]+)/i', $this->normalizedText, $m)) {
-            return $this->cleanTrailingLabels($m[1]);
+            $val = $this->cleanTrailingLabels($m[1]);
+            // User requested: "kelurahan huruf besar diawal kata" (Title Case)
+            return Str::title(strtolower(trim($val)));
         }
 
         return null;
@@ -183,7 +242,66 @@ class KtpTextParser
     private function extractKecamatan(): ?string
     {
         if (preg_match('/\b(?:Kecamatan|Kec)\b\s*\.?\s*[:=]?\s*([^\n]+)/i', $this->normalizedText, $m)) {
-            return $this->cleanTrailingLabels($m[1]);
+            $val = $this->cleanTrailingLabels($m[1]);
+            return strtoupper(trim($val));
+        }
+
+        return null;
+    }
+
+    private function extractKabupaten(): ?string
+    {
+        if (preg_match('/\b(?:Kabupaten|Kota|Kab\.?|Kodya)\b\s*[:=]?\s*([^\n]+)/i', $this->normalizedText, $m)) {
+            $val = $this->cleanTrailingLabels($m[1]);
+            return $this->processKabupatenResult($val);
+        }
+        $lines = explode("\n", $this->normalizedText);
+        foreach ($lines as $i => $line) {
+            if (preg_match('/(?:PROVINSI|PROV)/i', $line)) {
+                // Check the next non-empty line
+                for ($j = 1; $j <= 2; $j++) {
+                    if (isset($lines[$i + $j])) {
+                        $nextLine = trim($lines[$i + $j]);
+                        if (empty($nextLine)) {
+                            continue;
+                        }
+
+                        // Ensure it's not the NIK or Nama line
+                        if (preg_match('/(?:NIK|NlK|N[1!]K|Nama|Name)/i', $nextLine)) {
+                            break;
+                        }
+
+                        return $this->processKabupatenResult($nextLine);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function processKabupatenResult(string $val): ?string
+    {
+        $upper = strtoupper(trim(ltrim($val, '.: ')));
+
+        $name = trim(Str::replaceFirst('KABUPATEN', '', $upper));
+        $name = trim(Str::replaceFirst('KAB.', '', $name));
+        $name = trim(Str::replaceFirst('KAB', '', $name));
+        $name = trim(Str::replaceFirst('KOTA', '', $name));
+        $name = trim(ltrim($name, '.: '));
+
+        if (empty($name)) {
+            return null;
+        }
+
+        return Str::title(strtolower($name));
+    }
+
+    private function extractProvinsi(): ?string
+    {
+        if (preg_match('/(?:PROVINSI|PROV)\s*([^\n]+)/i', $this->normalizedText, $m)) {
+            $val = $this->cleanTrailingLabels($m[1]);
+            return Str::title(strtolower(trim($val)));
         }
 
         return null;

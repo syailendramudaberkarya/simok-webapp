@@ -40,6 +40,10 @@ class PendaftaranAnggota extends Component
     public string $jenisKelamin = '';
 
     public string $agama = '';
+    public string $statusPerkawinan = '';
+    public string $pekerjaan = '';
+    public string $kewarganegaraan = 'WNI';
+    public string $golonganDarah = '';
 
     public string $alamat = '';
 
@@ -58,10 +62,14 @@ class PendaftaranAnggota extends Component
     public string $email = '';
 
     public string $password = '';
+    public string $username = '';
 
     public string $passwordConfirmation = '';
 
     public string $noTelepon = '';
+
+    public string $tingkatan = 'PR';
+
 
     /** Registration result */
     public bool $registrationComplete = false;
@@ -117,12 +125,24 @@ class PendaftaranAnggota extends Component
         }
     }
 
-    public function updatedIdkelurahan($value)
+    public function updatedPropinsi()
     {
-        $kel = \App\Models\Kelurahan::find($value);
-        if ($kel) {
-            $this->kelurahan = $kel->kelurahan;
-        }
+        $this->resolveRegionalIds();
+    }
+
+    public function updatedKabupaten()
+    {
+        $this->resolveRegionalIds();
+    }
+
+    public function updatedKecamatan()
+    {
+        $this->resolveRegionalIds();
+    }
+
+    public function updatedKelurahan()
+    {
+        $this->resolveRegionalIds();
     }
 
     /**
@@ -141,22 +161,22 @@ class PendaftaranAnggota extends Component
             'agama' => ['required', 'string', 'in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu'],
             'alamat' => ['required', 'string', 'min:10'],
             'rtRw' => ['nullable', 'string', 'max:10'],
-            'idpropinsi' => ['required', 'string'],
-            'idkabupaten' => ['required', 'string'],
-            'idkecamatan' => ['required', 'string'],
-            'idkelurahan' => ['required', 'string'],
-            'kelurahan' => ['required', 'string', 'min:2'],
+            'propinsi' => ['required', 'string', 'min:2'],
+            'kabupaten' => ['required', 'string', 'min:2'],
             'kecamatan' => ['required', 'string', 'min:2'],
+            'kelurahan' => ['required', 'string', 'min:2'],
             'email' => ['required', 'email', 'unique:users,email'],
+            'username' => ['required', 'string', 'min:3', 'max:20', 'unique:users,username', 'regex:/^[a-zA-Z0-9_.]+$/'],
             'password' => ['required', 'string', 'min:8', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'same:passwordConfirmation'],
             'passwordConfirmation' => ['required'],
             'noTelepon' => ['required', 'string', 'regex:/^(\+62|08)\d{8,13}$/'],
+            'tingkatan' => ['required', 'in:DPN,DPD,DPC,PR,PAR'],
+            'statusPerkawinan' => ['required', 'string'],
+            'pekerjaan' => ['required', 'string'],
+            'kewarganegaraan' => ['required', 'string'],
+            'golonganDarah' => ['nullable', 'string', 'max:5'],
         ];
     }
-
-    /**
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [
@@ -199,7 +219,7 @@ class PendaftaranAnggota extends Component
 
     public function updatedFotoKtp(): void
     {
-        if (! $this->fotoKtp) {
+        if (!$this->fotoKtp) {
             return;
         }
 
@@ -241,15 +261,123 @@ class PendaftaranAnggota extends Component
             'tanggalLahir' => 'tanggalLahir',
             'jenisKelamin' => 'jenisKelamin',
             'agama' => 'agama',
+            'statusKawin' => 'statusPerkawinan',
+            'pekerjaan' => 'pekerjaan',
+            'kewarganegaraan' => 'kewarganegaraan',
+            'golonganDarah' => 'golonganDarah',
             'alamat' => 'alamat',
             'rtRw' => 'rtRw',
             'kelurahan' => 'kelurahan',
             'kecamatan' => 'kecamatan',
+            'kabupaten' => 'kabupaten',
+            'provinsi' => 'propinsi',
         ];
 
         foreach ($fieldMap as $dtoField => $formField) {
             if ($data->{$dtoField} !== null) {
                 $this->{$formField} = $data->{$dtoField};
+            }
+        }
+
+        // Resolve IDs immediately after scan
+        $this->resolveRegionalIds();
+    }
+
+    /**
+     * Format regional strings according to user rules.
+     */
+    private function formatRegionalStrings(): void
+    {
+        if ($this->propinsi) {
+            $this->propinsi = \Illuminate\Support\Str::title(strtolower(trim($this->propinsi)));
+        }
+        if ($this->kelurahan) {
+            $this->kelurahan = \Illuminate\Support\Str::title(strtolower(trim($this->kelurahan)));
+        }
+        if ($this->kecamatan) {
+            $this->kecamatan = strtoupper(trim($this->kecamatan));
+        }
+
+        if ($this->kabupaten) {
+            $kabRaw = strtoupper(trim($this->kabupaten));
+            $name = trim(\Illuminate\Support\Str::replaceFirst('KABUPATEN', '', $kabRaw));
+            $name = trim(\Illuminate\Support\Str::replaceFirst('KAB.', '', $name));
+            $name = trim(\Illuminate\Support\Str::replaceFirst('KAB', '', $name));
+            $name = trim(\Illuminate\Support\Str::replaceFirst('KOTA', '', $name));
+            $this->kabupaten = strtoupper($name);
+        }
+    }
+
+    /**
+     * Lookup IDs based on formatted text inputs.
+     */
+    private function resolveRegionalIds(): void
+    {
+        // Reset IDs first to catch failed matches
+        $this->idpropinsi = null;
+        $this->idkabupaten = null;
+        $this->idkecamatan = null;
+        $this->idkelurahan = null;
+
+        $this->formatRegionalStrings();
+
+        // 1. Provinsi (Handle DKI, DIY, etc.)
+        $searchProv = strtolower($this->propinsi);
+        // Expand abbreviations
+        if (str_contains($searchProv, 'dki')) {
+            $searchProv = str_replace('dki', 'daerah khusus ibukota', $searchProv);
+        }
+        if (str_contains($searchProv, 'diy')) {
+            $searchProv = str_replace('diy', 'daerah istimewa', $searchProv);
+        }
+        if (str_contains($searchProv, 'd.i.')) {
+            $searchProv = str_replace('d.i.', 'daerah istimewa', $searchProv);
+        }
+
+        $prop = \App\Models\Propinsi::whereRaw('LOWER(propinsi) LIKE ?', ['%' . trim($searchProv) . '%'])->first();
+
+        // Fallback: Super fuzzy (no spaces)
+        if (!$prop) {
+            $noSpace = str_replace([' ', '.', '-'], '', $searchProv);
+            $prop = \App\Models\Propinsi::whereRaw("REPLACE(REPLACE(REPLACE(LOWER(propinsi), ' ', ''), '.', ''), '-', '') LIKE ?", ['%' . $noSpace . '%'])->first();
+        }
+
+        if ($prop) {
+            $this->idpropinsi = (string) $prop->id;
+
+            // 2. Kabupaten
+            $searchKab = strtolower($this->kabupaten);
+            $kab = \App\Models\Kabupaten::where('idpropinsi', $this->idpropinsi)
+                ->whereRaw('LOWER(kabupaten) LIKE ?', ['%' . $searchKab . '%'])
+                ->first();
+
+            if (!$kab) {
+                $noSpaceKab = str_replace([' ', '.', '-', 'KAB', 'KOTA'], '', $searchKab);
+                $kab = \App\Models\Kabupaten::where('idpropinsi', $this->idpropinsi)
+                    ->whereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LOWER(kabupaten), ' ', ''), '.', ''), '-', ''), 'KAB', ''), 'KOTA', '') LIKE ?", ['%' . $noSpaceKab . '%'])
+                    ->first();
+            }
+
+            if ($kab) {
+                $this->idkabupaten = (string) $kab->id;
+
+                // 3. Kecamatan
+                $kec = \App\Models\Kecamatan::where('idkabupaten', $this->idkabupaten)
+                    ->whereRaw('LOWER(kecamatan) LIKE ?', ['%' . strtolower($this->kecamatan) . '%'])
+                    ->first();
+
+                if ($kec) {
+                    $this->idkecamatan = (string) $kec->id;
+
+                    // 4. Kelurahan
+                    $kel = \App\Models\Kelurahan::where('idkecamatan', $this->idkecamatan)
+                        ->whereRaw('LOWER(kelurahan) LIKE ?', ['%' . strtolower($this->kelurahan) . '%'])
+                        ->first();
+
+                    if ($kel) {
+                        $this->idkelurahan = (string) $kel->id;
+                    }
+                }
             }
         }
     }
@@ -261,12 +389,16 @@ class PendaftaranAnggota extends Component
     {
         $this->validate();
 
+        // Resolve IDs from text inputs before saving
+        $this->resolveRegionalIds();
+
         DB::transaction(function (): void {
             $ktpPath = $this->fotoKtp->store('foto_ktp', 'local');
             $wajahPath = $this->fotoWajah->store('foto_wajah', 'local');
 
             $user = User::create([
                 'name' => $this->namaLengkap,
+                'username' => $this->username,
                 'email' => $this->email,
                 'password' => Hash::make($this->password),
                 'role' => 'anggota',
@@ -282,6 +414,10 @@ class PendaftaranAnggota extends Component
                 'tanggal_lahir' => $this->tanggalLahir,
                 'jenis_kelamin' => $this->jenisKelamin,
                 'agama' => $this->agama,
+                'status_perkawinan' => $this->statusPerkawinan,
+                'pekerjaan' => $this->pekerjaan,
+                'kewarganegaraan' => $this->kewarganegaraan,
+                'golongan_darah' => $this->golonganDarah,
                 'alamat' => $this->alamat,
                 'rt_rw' => $this->rtRw,
                 'kelurahan' => $this->kelurahan,
@@ -291,6 +427,7 @@ class PendaftaranAnggota extends Component
                 'idkecamatan' => $this->idkecamatan,
                 'idkelurahan' => $this->idkelurahan,
                 'no_telepon' => $this->noTelepon,
+                'tingkatan' => $this->tingkatan,
                 'foto_ktp_path' => $ktpPath,
                 'foto_wajah_path' => $wajahPath,
                 'status' => 'menunggu',

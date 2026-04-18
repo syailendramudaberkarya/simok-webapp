@@ -18,7 +18,7 @@
     style="background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 50%, #f5f0ff 100%);">
 
     <!-- Topbar -->
-    <nav class="fixed top-0 z-50 w-full glass-light border-b border-white/40">
+    <nav class="fixed top-0 z-50 w-full bg-white/70 backdrop-blur-xl border-b border-white/40 shadow-sm">
         <div class="px-4 py-3 lg:px-6">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -64,15 +64,26 @@
                                 class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
                                 {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
                             </div>
-                            <span
-                                class="text-sm font-medium text-gray-700 hidden md:block">{{ auth()->user()->name ?? '' }}</span>
+                            <div class="hidden md:flex md:flex-col md:items-start md:justify-center">
+                                <span
+                                    class="text-sm font-medium text-gray-700 leading-none">{{ auth()->user()->name ?? '' }}</span>
+                                @if(auth()->user()->isAdmin())
+                                    <span
+                                        class="text-[9px] font-bold text-primary-700 bg-primary-100 px-1.5 py-0.5 rounded-md mt-1 tracking-wider uppercase border border-primary-200">
+                                        Admin {{ auth()->user()->tingkatan }}
+                                        @if(auth()->user()->tingkatan !== 'DPN' && auth()->user()->kantor)
+                                            - {{ auth()->user()->kantor->nama_kantor }}
+                                        @endif
+                                    </span>
+                                @endif
+                            </div>
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 9l-7 7-7-7" />
                             </svg>
                         </button>
                         <div x-show="open" @click.away="open = false" x-transition
-                            class="absolute right-0 mt-2 w-48 glass-light rounded-xl shadow-xl py-2 z-50">
+                            class="absolute right-0 mt-2 w-48 bg-white/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-xl py-2 z-50">
                             <div class="px-4 py-2 border-b border-gray-100">
                                 <p class="text-xs text-gray-500">{{ auth()->user()->email ?? '' }}</p>
                             </div>
@@ -92,9 +103,9 @@
     <aside id="logo-sidebar"
         class="fixed top-0 left-0 z-40 w-64 h-screen pt-12 transition-transform -translate-x-full sm:translate-x-0"
         aria-label="Sidebar">
-        <div class="h-full px-4 pb-4 overflow-y-auto glass-light border-r border-white/40">
+        <div class="h-full px-4 pb-4 overflow-y-auto bg-white/70 backdrop-blur-xl border-r border-white/40">
             <ul class="space-y-1 font-medium pt-4">
-                @if(auth()->user()->isAnggota())
+                @if(auth()->check() && auth()->user()->isAnggota())
                     <li class="pb-2"><span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3">Akun
                             Anggota</span></li>
                     <li>
@@ -131,7 +142,7 @@
                         </a>
                     </li>
                 @endif
-                @if(auth()->user()->isAdmin())
+                @if(auth()->check() && auth()->user()->isAdmin())
                     <li class="pt-4 pb-2"><span
                             class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3">Administrator</span>
                     </li>
@@ -148,6 +159,26 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('admin.struktur') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 {{ request()->routeIs('admin.struktur') ? 'bg-primary-500/10 text-primary-700 font-semibold shadow-sm' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            Struktur Organisasi
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.kantor') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 {{ request()->routeIs('admin.kantor') ? 'bg-primary-500/10 text-primary-700 font-semibold shadow-sm' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            Manajemen Kantor
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('admin.manajemen') }}"
                             class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 {{ request()->routeIs('admin.manajemen') ? 'bg-primary-500/10 text-primary-700 font-semibold shadow-sm' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900' }}">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 18">
@@ -155,6 +186,16 @@
                                     d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                             </svg>
                             Manajemen Anggota
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('admin.admin') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 {{ request()->routeIs('admin.admin') ? 'bg-primary-500/10 text-primary-700 font-semibold shadow-sm' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            Manajemen Admin
                         </a>
                     </li>
                     <li>

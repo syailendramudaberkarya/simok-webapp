@@ -14,10 +14,16 @@ class KtpData
         public readonly ?string $tanggalLahir = null,
         public readonly ?string $jenisKelamin = null,
         public readonly ?string $agama = null,
+        public readonly ?string $statusKawin = null,
+        public readonly ?string $pekerjaan = null,
+        public readonly ?string $kewarganegaraan = null,
+        public readonly ?string $golonganDarah = null,
         public readonly ?string $alamat = null,
         public readonly ?string $rtRw = null,
         public readonly ?string $kelurahan = null,
         public readonly ?string $kecamatan = null,
+        public readonly ?string $kabupaten = null,
+        public readonly ?string $provinsi = null,
         public readonly array $raw = [],
     ) {}
 
@@ -36,7 +42,7 @@ class KtpData
     {
         $count = 0;
 
-        foreach (['nik', 'nama', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'agama', 'alamat', 'rtRw', 'kelurahan', 'kecamatan'] as $field) {
+        foreach (['nik', 'nama', 'tempatLahir', 'tanggalLahir', 'jenisKelamin', 'agama', 'alamat', 'rtRw', 'kelurahan', 'kecamatan', 'kabupaten', 'provinsi'] as $field) {
             if ($this->{$field} !== null) {
                 $count++;
             }
@@ -59,10 +65,16 @@ class KtpData
             tanggalLahir: $data['tanggal_lahir'] ?? null,
             jenisKelamin: $data['jenis_kelamin'] ?? null,
             agama: $data['agama'] ?? null,
+            statusKawin: $data['status_kawin'] ?? null,
+            pekerjaan: $data['pekerjaan'] ?? null,
+            kewarganegaraan: $data['kewarganegaraan'] ?? null,
+            golonganDarah: $data['golongan_darah'] ?? null,
             alamat: $data['alamat'] ?? null,
             rtRw: $data['rt_rw'] ?? null,
             kelurahan: $data['kelurahan'] ?? null,
             kecamatan: $data['kecamatan'] ?? null,
+            kabupaten: $data['kabupaten'] ?? null,
+            provinsi: $data['provinsi'] ?? null,
             raw: $data,
         );
     }

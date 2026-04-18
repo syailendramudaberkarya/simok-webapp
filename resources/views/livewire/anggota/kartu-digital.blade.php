@@ -5,7 +5,7 @@
     </div>
 
     @if(!$kartu)
-        <div class="glass-light rounded-2xl p-8 text-center">
+        <div class="bg-white/70 backdrop-blur-xl border border-black/5 shadow-md rounded-2xl p-8 text-center">
             <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -17,7 +17,7 @@
                 nanti.</p>
         </div>
     @else
-        <div class="glass-light rounded-2xl p-6 sm:p-8">
+        <div class="bg-white/70 backdrop-blur-xl border border-black/5 shadow-md rounded-2xl p-6 sm:p-8">
             <div class="flex flex-col items-center py-6">
                 <!-- Card Preview (Landscape) -->
                 <div class="relative w-full max-w-[480px] aspect-[1.58/1] rounded-2xl shadow-2xl overflow-hidden text-white"

@@ -11,15 +11,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'user_id', 'nik', 'nama_lengkap', 'tempat_lahir', 'tanggal_lahir',
-    'jenis_kelamin', 'agama', 'alamat', 'rt_rw', 'kelurahan', 'kecamatan',
+    'jenis_kelamin', 'agama', 'status_perkawinan', 'pekerjaan', 'kewarganegaraan', 'golongan_darah', 'alamat', 'rt_rw', 'kelurahan', 'kecamatan',
     'idpropinsi', 'idkabupaten', 'idkecamatan', 'idkelurahan',
     'no_telepon', 'foto_ktp_path', 'foto_wajah_path', 'nomor_anggota',
-    'status', 'alasan_tolak', 'approved_at', 'approved_by',
+    'status', 'alasan_tolak', 'approved_at', 'approved_by', 'tingkatan',
 ])]
 class Anggota extends Model
 {
     /** @use HasFactory<AnggotaFactory> */
-    use HasFactory;
+    use HasFactory, \App\Traits\HasHierarchicalScope;
 
     /**
      * The table associated with the model.

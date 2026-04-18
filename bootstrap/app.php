@@ -22,16 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, \Illuminate\Http\Request $request) {
-            if ($request->is('admin/*') || $request->is('admin')) {
-                return redirect()->route('admin.login');
-            }
             return redirect()->route('login');
         });
 
         $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, \Illuminate\Http\Request $request) {
-            if ($request->is('admin/*') || $request->is('admin')) {
-                return redirect()->guest(route('admin.login'));
-            }
             return redirect()->guest(route('login'));
         });
     })->create();

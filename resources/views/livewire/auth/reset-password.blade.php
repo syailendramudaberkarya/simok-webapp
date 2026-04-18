@@ -8,27 +8,27 @@
             <p class="text-sm text-white/60 mt-1">Masukkan password baru Anda.</p>
         </div>
 
-        <div class="glass rounded-2xl p-8">
+        <div class="bg-white/10 backdrop-blur-2xl border border-white/10 shadow-xl rounded-2xl p-8">
             <form wire:submit.prevent="resetPassword" class="space-y-5">
                 <div>
                     <label for="email" class="block mb-2 text-sm font-medium text-white/80">Email</label>
-                    <input type="email" wire:model="email" id="email" class="input-glass w-full rounded-xl px-4 py-3 text-sm" required>
+                    <input type="email" wire:model="email" id="email" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-3 text-sm" required>
                     @error('email') <span class="text-sm text-red-400 mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label for="password" class="block mb-2 text-sm font-medium text-white/80">Password Baru</label>
-                    <input type="password" wire:model="password" id="password" class="input-glass w-full rounded-xl px-4 py-3 text-sm" required>
+                    <input type="password" wire:model="password" id="password" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-3 text-sm" required>
                     <p class="text-xs text-white/40 mt-1">Min 8 karakter, 1 huruf kapital, 1 angka.</p>
                     @error('password') <span class="text-sm text-red-400 mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label for="password_confirmation" class="block mb-2 text-sm font-medium text-white/80">Konfirmasi Password</label>
-                    <input type="password" wire:model="password_confirmation" id="password_confirmation" class="input-glass w-full rounded-xl px-4 py-3 text-sm" required>
+                    <input type="password" wire:model="password_confirmation" id="password_confirmation" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-3 text-sm" required>
                 </div>
 
-                <button type="submit" wire:loading.attr="disabled" class="btn-gradient w-full rounded-xl px-5 py-3 text-sm cursor-pointer">
+                <button type="submit" wire:loading.attr="disabled" class="bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 text-white font-semibold shadow-lg shadow-primary-500/30 transition-all hover:-translate-y-0.5 active:translate-y-0 w-full rounded-xl px-5 py-3 text-sm cursor-pointer">
                     <span wire:loading.remove wire:target="resetPassword">Reset Password</span>
                     <span wire:loading wire:target="resetPassword">Memproses...</span>
                 </button>
