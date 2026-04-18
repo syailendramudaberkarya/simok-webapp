@@ -57,51 +57,50 @@
         <!-- Chart -->
         <div class="lg:col-span-2 bg-white/70 backdrop-blur-xl border border-black/5 shadow-md rounded-2xl p-6">
             <h3 class="text-base font-bold text-gray-800 mb-4">Pertumbuhan 6 Bulan Terakhir</h3>
-            <div class="h-64 w-full" x-data="chartData()" x-init="initChart()">
+
+            <div class="h-64 w-full" wire:ignore 
+                x-data="{
+                    labels: @js($chartDataLabels),
+                    values: @js($chartDataValues),
+                    init() {
+                        const ctx = this.$refs.canvas.getContext('2d');
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+                        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
+                        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+                        
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: this.labels,
+                                datasets: [{
+                                    label: 'Anggota Baru',
+                                    data: this.values,
+                                    borderColor: '#6366f1',
+                                    backgroundColor: gradient,
+                                    borderWidth: 2.5,
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointBackgroundColor: '#6366f1',
+                                    pointBorderColor: '#fff',
+                                    pointBorderWidth: 2,
+                                    pointRadius: 5,
+                                    pointHoverRadius: 7
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                                    x: { grid: { display: false } }
+                                }
+                            }
+                        });
+                    }
+                }">
                 <canvas x-ref="canvas"></canvas>
             </div>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script>
-                document.addEventListener('alpine:init', () => {
-                    Alpine.data('chartData', () => ({
-                        initChart() {
-                            const ctx = this.$refs.canvas.getContext('2d');
-                            const gradient = ctx.createLinearGradient(0, 0, 0, 250);
-                            gradient.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
-                            gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
-                            new Chart(ctx, {
-                                type: 'line',
-                                data: {
-                                    labels: {!! json_encode($chartDataLabels) !!},
-                                    datasets: [{
-                                        label: 'Anggota Baru',
-                                        data: {!! json_encode($chartDataValues) !!},
-                                        borderColor: '#6366f1',
-                                        backgroundColor: gradient,
-                                        borderWidth: 2.5,
-                                        fill: true,
-                                        tension: 0.4,
-                                        pointBackgroundColor: '#6366f1',
-                                        pointBorderColor: '#fff',
-                                        pointBorderWidth: 2,
-                                        pointRadius: 5,
-                                        pointHoverRadius: 7
-                                    }]
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    plugins: { legend: { display: false } },
-                                    scales: {
-                                        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(0,0,0,0.04)' } },
-                                        x: { grid: { display: false } }
-                                    }
-                                }
-                            });
-                        }
-                    }))
-                })
-            </script>
         </div>
 
         <!-- Recent List -->

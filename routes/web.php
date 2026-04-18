@@ -19,7 +19,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public ─────────────────────────────────────────────
-Route::get('/', PendaftaranAnggota::class)->name('pendaftaran');
+Route::view('/', 'landing')->name('landing');
+Route::get('/pendaftaran', PendaftaranAnggota::class)->name('pendaftaran');
 Route::get('/login', Login::class)->name('login');
 Route::get('/lupa-password', LupaPassword::class)->name('password.request');
 Route::get('/reset-password/{token}', ResetPassword::class)->name('password.reset');

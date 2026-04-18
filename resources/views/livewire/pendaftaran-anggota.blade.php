@@ -285,17 +285,7 @@
                             @error('passwordConfirmation') <span
                             class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
-                        <div class="md:col-span-2">
-                            <label for="tingkatan" class="block mb-1.5 text-sm font-medium text-white/70">Tingkatan Organisasi</label>
-                            <select wire:model="tingkatan" id="tingkatan" class="bg-white/5 border border-white/15 text-white placeholder-white/40 focus:bg-white/10 focus:border-primary-400 focus:ring-4 focus:ring-primary-400/25 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
-                                <option value="DPN">Dewan Pimpinan Nasional (DPN)</option>
-                                <option value="DPD">Dewan Pimpinan Daerah (DPD)</option>
-                                <option value="DPC">Dewan Pimpinan Cabang (DPC)</option>
-                                <option value="PR">Pimpinan Ranting (PR)</option>
-                                <option value="PAR">Pimpinan Anak Ranting (PAR)</option>
-                            </select>
-                            @error('tingkatan') <span class="text-red-400 text-xs mt-1 block">{{ $message }}</span> @enderror
-                        </div>
+
                     </div>
 
                     {{-- Submit --}}
