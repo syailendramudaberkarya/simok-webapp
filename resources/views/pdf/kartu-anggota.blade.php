@@ -104,7 +104,7 @@
             line-height: 0;
         }
 
-        .qr-white-box svg {
+        .qr-white-box img {
             width: 45pt;
             height: 45pt;
         }
@@ -122,7 +122,7 @@
                 $photoSrc = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($path));
             }
         }
-        $qrCodeSrc = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(80)->margin(0)->generate($verifyUrl);
+        $qrCodeSrc = 'data:image/svg+xml;base64,' . base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(80)->margin(0)->generate($verifyUrl));
     @endphp
 
     <table class="outer-table" cellpadding="0" cellspacing="0">
@@ -169,7 +169,7 @@
                         </td>
                         <td align="right" valign="bottom">
                             <div class="qr-white-box">
-                                {!! $qrCodeSrc !!}
+                                <img src="{{ $qrCodeSrc }}">
                             </div>
                         </td>
                     </tr>
