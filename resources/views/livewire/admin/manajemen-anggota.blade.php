@@ -29,7 +29,13 @@
             {{ session('message') }}</div>
     @endif
     @if (session()->has('warning'))
-        <div class="p-3 text-sm text-amber-700 rounded-xl bg-amber-50 border border-amber-200">{{ session('warning') }}
+        <div class="p-3 text-sm text-amber-700 rounded-xl bg-amber-50 border border-amber-200">
+            {{ session('warning') }}
+        </div>
+    @endif
+    @if (session()->has('error'))
+        <div class="p-3 text-sm text-red-700 rounded-xl bg-red-50 border border-red-200">
+            {{ session('error') }}
         </div>
     @endif
 

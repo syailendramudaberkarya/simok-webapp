@@ -82,65 +82,74 @@ class ManajemenAnggota extends Component
         $anggota = Anggota::with('user')->findOrFail($id);
 
         if ($anggota->status === 'disetujui') {
+            session()->flash('warning', 'Anggota sudah disetujui sebelumnya.');
             return;
         }
 
-        DB::transaction(function () use ($anggota) {
-            // New Rule: idprop + idkab + {nourut}
-            $propId = $anggota->idpropinsi ?? '00';
-            $kabId = $anggota->idkabupaten ?? '0000';
+        try {
+            DB::transaction(function () use ($anggota) {
+                // Penomoran Anggota: idprop + idkab + {nourut}
+                $propId = $anggota->idpropinsi ?? '00';
+                $kabId = $anggota->idkabupaten ?? '0000';
 
-            // Find the last sequence for this specific kabupaten and ensure it matches the prefix
-            $lastAnggota = Anggota::where('idkabupaten', $kabId)
-                ->where('nomor_anggota', 'LIKE', $propId . $kabId . '%')
-                ->whereNotNull('nomor_anggota')
-                ->orderBy('nomor_anggota', 'desc')
-                ->first();
+                // Find the last sequence for this specific kabupaten
+                $lastAnggota = Anggota::where('idkabupaten', $kabId)
+                    ->where('nomor_anggota', 'LIKE', $propId . $kabId . '%')
+                    ->whereNotNull('nomor_anggota')
+                    ->orderBy('nomor_anggota', 'desc')
+                    ->lockForUpdate() // Lock to prevent race conditions
+                    ->first();
 
-            $nextNumber = 1;
-            if ($lastAnggota) {
-                // Extract last 5 digits as the sequence
-                $lastNomor = $lastAnggota->nomor_anggota;
-                $lastSequence = intval(substr($lastNomor, -5));
-                $nextNumber = $lastSequence + 1;
+                $nextNumber = 1;
+                if ($lastAnggota) {
+                    $lastNomor = $lastAnggota->nomor_anggota;
+                    $lastSequence = intval(substr($lastNomor, -5));
+                    $nextNumber = $lastSequence + 1;
+                }
+
+                $newNomor = $propId . $kabId . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+
+                $anggota->update([
+                    'status' => 'disetujui',
+                    'nomor_anggota' => $newNomor,
+                    'approved_by' => auth()->id(),
+                    'approved_at' => now(),
+                ]);
+
+                // 1. Create Kartu record
+                $template = KartuTemplate::where('is_active', true)->first();
+                KartuAnggota::create([
+                    'anggota_id' => $anggota->id,
+                    'nomor_anggota' => $newNomor,
+                    'template_id' => $template ? $template->id : null,
+                    'berlaku_hingga' => Carbon::now()->addYears(5),
+                ]);
+
+                // 2. Generate Physical PDF
+                app(CardGenerationService::class)->generate($anggota);
+
+                // 3. Log Activity
+                ActivityLog::create([
+                    'user_id' => auth()->id(),
+                    'action' => 'approve_member',
+                    'description' => "Menyetujui pendaftaran anggota: {$anggota->nama_lengkap} ({$newNomor})",
+                    'ip_address' => request()->ip(),
+                ]);
+
+                // 4. Send Email (Queued) - Handled after commit
+            });
+
+            // Send notification after successful transaction
+            if ($anggota->user && $anggota->user->email) {
+                Mail::to($anggota->user->email)->queue(new AnggotaDisetujui($anggota));
             }
 
-            $newNomor = $propId . $kabId . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
-
-            $anggota->update([
-                'status' => 'disetujui',
-                'nomor_anggota' => $newNomor,
-                'approved_by' => auth()->id(),
-                'approved_at' => now(),
-            ]);
-
-            // Kirim email notifikasi persetujuan
-            \Illuminate\Support\Facades\Mail::to($anggota->user->email)->queue(new \App\Mail\AnggotaDisetujui($anggota));
-
-            // Create DB record then Generate Physical PDF
-            $template = KartuTemplate::where('is_active', true)->first();
-
-            $kartu = KartuAnggota::create([
-                'anggota_id' => $anggota->id,
-                'nomor_anggota' => $newNomor,
-                'template_id' => $template ? $template->id : null,
-                'berlaku_hingga' => Carbon::now()->addYears(5),
-            ]);
-
-            app(CardGenerationService::class)->generate($anggota);
-
-            ActivityLog::create([
-                'user_id' => auth()->id(),
-                'action' => 'approve_member',
-                'description' => "Menyetujui pendaftaran anggota: {$anggota->nama_lengkap} ({$newNomor})",
-                'ip_address' => request()->ip(),
-            ]);
-
-            Mail::to($anggota->user->email)->queue(new AnggotaDisetujui($anggota));
-        });
-
-        session()->flash('message', 'Anggota berhasil disetujui.');
-        $this->closeViewModal();
+            session()->flash('message', 'Anggota berhasil disetujui dan kartu telah digenerate.');
+            $this->closeViewModal();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Error approving member {$id}: " . $e->getMessage());
+            session()->flash('error', 'Gagal menyetujui anggota: ' . $e->getMessage());
+        }
     }
 
     public function openRejectModal($id)
