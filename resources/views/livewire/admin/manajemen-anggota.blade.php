@@ -175,7 +175,8 @@
                                         class="w-full group relative cursor-zoom-in">
                                         <img src="{{ route('file.private', ['path' => $detailAnggota->foto_wajah_path]) }}"
                                             class="w-full h-auto object-contain rounded-xl border border-gray-100 shadow-sm group-hover:opacity-90 transition-opacity"
-                                            alt="Foto Wajah">
+                                            alt="Foto Wajah"
+                                            onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($detailAnggota->nama_lengkap) }}&color=7F9CF5&background=EBF4FF';">
                                         <div
                                             class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 rounded-xl">
                                             <svg class="w-8 h-8 text-white drop-shadow-md" fill="none" stroke="currentColor"
@@ -200,7 +201,8 @@
                                         class="w-full group relative cursor-zoom-in">
                                         <img src="{{ route('file.private', ['path' => $detailAnggota->foto_ktp_path]) }}"
                                             class="w-full h-auto object-contain rounded-xl border border-gray-100 shadow-sm group-hover:opacity-90 transition-opacity"
-                                            alt="Foto KTP">
+                                            alt="Foto KTP"
+                                            onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'100%\' height=\'100%\'><rect width=\'100%\' height=\'100%\' fill=\'%23f3f4f6\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'14\' font-weight=\'bold\' fill=\'%239ca3af\' dominant-baseline=\'middle\' text-anchor=\'middle\'>KTP Hilang/404</text></svg>';">
                                         <div
                                             class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 rounded-xl">
                                             <svg class="w-8 h-8 text-white drop-shadow-md" fill="none" stroke="currentColor"

@@ -15,7 +15,7 @@
             margin: 0;
             padding: 0;
             background-color:
-                {{ $template->warna_utama ?? '#1e40af' }}
+                {{ optional($template)->warna_utama ?? '#1e40af' }}
             ;
             color: #ffffff;
             width: 382.68pt;

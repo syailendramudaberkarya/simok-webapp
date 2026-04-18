@@ -97,7 +97,6 @@ class ManajemenAnggota extends Component
                     ->where('nomor_anggota', 'LIKE', $propId . $kabId . '%')
                     ->whereNotNull('nomor_anggota')
                     ->orderBy('nomor_anggota', 'desc')
-                    ->lockForUpdate() // Lock to prevent race conditions
                     ->first();
 
                 $nextNumber = 1;
