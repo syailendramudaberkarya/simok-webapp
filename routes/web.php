@@ -59,6 +59,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/struktur-organisasi', \App\Livewire\Admin\StrukturOrganisasi::class)->name('struktur');
         Route::get('/manajemen-anggota', ManajemenAnggota::class)->name('manajemen');
         Route::get('/manajemen-kantor', ManajemenKantor::class)->name('kantor');
+        Route::get('/manajemen-pengurus', \App\Livewire\Admin\ManajemenPengurus::class)->name('pengurus');
         Route::get('/manajemen-admin', \App\Livewire\Admin\ManajemenAdmin::class)->name('admin');
         Route::get('/input-manual', InputManual::class)->name('input-manual');
     });

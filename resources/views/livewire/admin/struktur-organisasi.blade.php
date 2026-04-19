@@ -63,11 +63,11 @@
     <!-- Active Level Detail View -->
     @if($selectedLevel && $listKantor)
         <div class="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <div>
                         <h3 class="text-lg font-bold text-gray-800">Daftar Cabang {{ $selectedLevel }}</h3>
-                        <p class="text-sm text-gray-500">Menampilkan detail data untuk {{ $labels[$selectedLevel] ?? 'Cabang' }}</p>
+                        <p class="text-sm text-gray-500">Klik pada cabang untuk melihat detail pengurus dan informasi kantor.</p>
                     </div>
                     <div class="w-full sm:w-64 relative">
                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,29 +81,35 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     @forelse($listKantor as $kantor)
-                        <div class="border border-gray-100 rounded-xl p-4 hover:border-primary-200 hover:shadow-md transition-all bg-white group">
-                            <div class="flex justify-between items-start mb-3">
-                                <h4 class="font-bold text-gray-800 group-hover:text-primary-600 transition-colors">{{ $kantor->nama_kantor }}</h4>
-                                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
-                                    {{ $kantor->status }}
-                                </span>
-                            </div>
+                        <div wire:click="viewDetail({{ $kantor->id }})" 
+                            class="border border-gray-100 rounded-xl p-4 hover:border-primary-300 hover:shadow-lg cursor-pointer transition-all bg-white group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-primary-50/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             
-                            <div class="space-y-2 text-xs text-gray-600">
-                                <div class="flex items-start gap-2">
-                                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    <span class="line-clamp-2">
-                                        {{ $kantor->alamat ?? '-' }} 
-                                        {{ implode(', ', array_filter([$kantor->kelurahan, $kantor->kecamatan, $kantor->kabupaten, $kantor->provinsi])) }}
+                            <div class="relative z-10">
+                                <div class="flex justify-between items-start mb-3">
+                                    <h4 class="font-bold text-gray-800 group-hover:text-primary-600 transition-colors">{{ $kantor->nama_kantor }}</h4>
+                                    <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">
+                                        {{ $kantor->status }}
                                     </span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                                    <span>{{ $kantor->email ?? 'Tidak ada email' }}</span>
+                                
+                                <div class="space-y-2 text-xs text-gray-600">
+                                    <div class="flex items-start gap-2">
+                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                        <span class="line-clamp-2">
+                                            {{ $kantor->alamat ?? '-' }} 
+                                            {{ implode(', ', array_filter([$kantor->kelurahan, $kantor->kecamatan, $kantor->kabupaten, $kantor->provinsi])) }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                        <span>{{ $kantor->email ?? '-' }}</span>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                                    <span>{{ $kantor->telepon ?? 'Tidak ada No. Telp' }}</span>
+
+                                <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                                    <span class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Klik Detail</span>
+                                    <svg class="w-4 h-4 text-primary-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                                 </div>
                             </div>
                         </div>
@@ -117,6 +123,132 @@
 
                 <div class="mt-6">
                     {{ $listKantor->links() }}
+                </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Detail Modal -->
+    @if($isDetailModalOpen && $detailKantor)
+        <div class="fixed inset-0 z-[60] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-black/50 transition-opacity" wire:click="closeDetailModal"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-gray-200 relative z-10">
+                    
+                    <!-- Header -->
+                    <div class="bg-gray-50 px-6 py-5 border-b border-gray-100 flex justify-between items-center text-gray-900">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="bg-primary-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">{{ $detailKantor->jenjang }}</span>
+                                <span class="bg-{{ $detailKantor->status === 'Aktif' ? 'green' : 'red' }}-100 text-{{ $detailKantor->status === 'Aktif' ? 'green' : 'red' }}-700 text-[10px] font-bold px-2 py-0.5 rounded">{{ $detailKantor->status }}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">{{ $detailKantor->nama_kantor }}</h3>
+                        </div>
+                        <button type="button" wire:click="closeDetailModal" class="text-gray-400 hover:text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-xl p-2 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="bg-white p-6 h-[70vh] overflow-y-auto">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <!-- Left: Kantor Info -->
+                            <div class="lg:col-span-1 space-y-6">
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Informasi Lokasi</h4>
+                                    <div class="space-y-4">
+                                        <div class="flex gap-3">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z" /></svg>
+                                            </div>
+                                            <p class="text-sm text-gray-600 leading-relaxed">
+                                                {{ $detailKantor->alamat ?? '-' }}<br/>
+                                                {{ $detailKantor->kelurahan }}, {{ $detailKantor->kecamatan }}<br/>
+                                                {{ $detailKantor->kabupaten }}, {{ $detailKantor->provinsi }}<br/>
+                                                <span class="text-gray-400 text-xs">Kode Pos: {{ $detailKantor->kode_pos ?? '-' }}</span>
+                                            </p>
+                                        </div>
+                                        @if($detailKantor->latitude && $detailKantor->longitude)
+                                        <div class="flex gap-3">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.382V6.618a2 2 0 011.106-1.789L9 2l5.447 2.724A2 2 0 0115 6.618v8.764a2 2 0 01-1.106 1.789L9 20z" /></svg>
+                                            </div>
+                                            <div class="text-sm font-mono text-gray-500">
+                                                {{ $detailKantor->latitude }}, {{ $detailKantor->longitude }}
+                                            </div>
+                                        </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Kontak Utama</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                                            </div>
+                                            <span class="text-sm text-gray-700">{{ $detailKantor->telepon ?? '-' }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                            </div>
+                                            <span class="text-sm text-gray-700">{{ $detailKantor->email ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Pengurus List -->
+                            <div class="lg:col-span-2">
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Struktur Kepengurusan</h4>
+                                <div class="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
+                                    <table class="w-full text-sm text-left">
+                                        <thead class="bg-gray-100/50 text-gray-500 text-[10px] uppercase font-bold border-b border-gray-100">
+                                            <tr>
+                                                <th class="px-4 py-3">Nama Pengurus</th>
+                                                <th class="px-4 py-3">Jabatan</th>
+                                                <th class="px-4 py-3">Kategori</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            @forelse($pengurusList as $p)
+                                                <tr class="bg-white hover:bg-primary-50/30 transition-colors">
+                                                    <td class="px-4 py-3">
+                                                        <div class="font-bold text-gray-900">{{ $p->nama }}</div>
+                                                        <div class="text-[10px] text-gray-400 font-mono">{{ $p->noanggota }}</div>
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <span class="bg-primary-50 text-primary-700 text-[10px] font-bold px-2 py-0.5 rounded border border-primary-100">
+                                                            {{ $p->jabatan }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-4 py-3">
+                                                        <div class="text-[11px] text-gray-600">{{ $p->kategorijabatan }}</div>
+                                                        <div class="text-[9px] text-gray-400 italic">{{ $p->subkategorijabatan }}</div>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" class="px-4 py-8 text-center text-gray-400 italic">
+                                                        Belum ada data pengurus yang tercatat untuk kantor ini.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-100">
+                        <button type="button" wire:click="closeDetailModal" class="rounded-xl bg-white border border-gray-200 px-6 py-2 text-sm font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition-all focus:outline-none">
+                            Tutup
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

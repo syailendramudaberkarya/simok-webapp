@@ -3,8 +3,7 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Kantor;
-use App\Models\User;
-use App\Models\Anggota;
+use App\Models\Pengurus;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -14,6 +13,11 @@ class StrukturOrganisasi extends Component
 
     public $selectedLevel = null;
     public $search = '';
+
+    // Detail Modal State
+    public $isDetailModalOpen = false;
+    public $detailKantor = null;
+    public $pengurusList = [];
 
     protected $queryString = [
         'selectedLevel' => ['except' => ''],
@@ -34,6 +38,25 @@ class StrukturOrganisasi extends Component
             $this->resetPage();
             $this->search = '';
         }
+    }
+
+    public function viewDetail($id)
+    {
+        $this->detailKantor = Kantor::with('parent')->findOrFail($id);
+        $this->pengurusList = Pengurus::where('kantor_id', $id)
+            ->with('anggota')
+            ->orderBy('kategorijabatan')
+            ->orderBy('jabatan')
+            ->get();
+        
+        $this->isDetailModalOpen = true;
+    }
+
+    public function closeDetailModal()
+    {
+        $this->isDetailModalOpen = false;
+        $this->detailKantor = null;
+        $this->pengurusList = [];
     }
 
     public function getVisibleLevels()
