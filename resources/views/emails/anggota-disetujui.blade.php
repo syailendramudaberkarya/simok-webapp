@@ -30,6 +30,20 @@
                     <p style="margin: 5px 0 0 0; font-size: 14px; color: #15803d;">Kartu Tanda Anggota Digital Anda telah berhasil digenerate dan siap diunduh melalui Dashboard Anggota.</p>
                 </div>
 
+                @if(!empty($password))
+                <!-- Info Login -->
+                <div style="background: #fdf2f8; border-left: 4px solid #db2777; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+                    <p style="margin: 0; font-weight: bold; color: #9d174d;">🔐 Informasi Login Anda</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; color: #831843;">Anda telah didaftarkan oleh Administrator. Berikut adalah detail login Anda:</p>
+                    <ul style="margin: 5px 0 0 0; font-size: 14px; color: #831843;">
+                        <li>Username: <strong>{{ $anggota->user->username ?? '-' }}</strong></li>
+                        <li>Email: <strong>{{ $anggota->user->email ?? '-' }}</strong></li>
+                        <li>Password: <strong>{{ $password }}</strong></li>
+                    </ul>
+                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #be185d;">Disarankan untuk segera mengubah password Anda setelah berhasil login.</p>
+                </div>
+                @endif
+
                 <!-- CTA Button -->
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="{{ route('login') }}" style="background: #1e40af; color: white; padding: 14px 36px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Masuk ke Dashboard</a>

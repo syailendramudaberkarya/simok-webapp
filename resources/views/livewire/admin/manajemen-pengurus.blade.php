@@ -288,6 +288,31 @@
                                         class="text-red-500 text-xs mt-1.5 block px-1">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                                            for="periode_mulai">Periode Mulai</label>
+                                        <input type="date" wire:model="periode_mulai" id="periode_mulai"
+                                            class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-2xl focus:ring-primary-500 focus:border-primary-500 block w-full p-3 transition-all">
+                                        @error('periode_mulai') <span class="text-red-500 text-xs mt-1.5 block px-1">{{ $message }}</span> @enderror
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                                            for="periode_selesai">Periode Selesai</label>
+                                        <input type="date" wire:model="periode_selesai" id="periode_selesai"
+                                            class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-2xl focus:ring-primary-500 focus:border-primary-500 block w-full p-3 transition-all">
+                                        @error('periode_selesai') <span class="text-red-500 text-xs mt-1.5 block px-1">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 border border-gray-200 rounded-2xl transition-all hover:bg-gray-100">
+                                        <input type="checkbox" wire:model="status_aktif" class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                                        <span class="text-sm font-semibold text-gray-700">Status Aktif (Kepengurusan masih berjalan)</span>
+                                    </label>
+                                    @error('status_aktif') <span class="text-red-500 text-xs mt-1.5 block px-1">{{ $message }}</span> @enderror
+                                </div>
 
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5"

@@ -203,41 +203,55 @@
                             <!-- Right: Pengurus List -->
                             <div class="lg:col-span-2">
                                 <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Struktur Kepengurusan</h4>
-                                <div class="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100">
-                                    <table class="w-full text-sm text-left">
-                                        <thead class="bg-gray-100/50 text-gray-500 text-[10px] uppercase font-bold border-b border-gray-100">
-                                            <tr>
-                                                <th class="px-4 py-3">Nama Pengurus</th>
-                                                <th class="px-4 py-3">Jabatan</th>
-                                                <th class="px-4 py-3">Kategori</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-100">
-                                            @forelse($pengurusList as $p)
-                                                <tr class="bg-white hover:bg-primary-50/30 transition-colors">
-                                                    <td class="px-4 py-3">
-                                                        <div class="font-bold text-gray-900">{{ $p->nama }}</div>
-                                                        <div class="text-[10px] text-gray-400 font-mono">{{ $p->noanggota }}</div>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <span class="bg-primary-50 text-primary-700 text-[10px] font-bold px-2 py-0.5 rounded border border-primary-100">
-                                                            {{ $p->jabatan }}
-                                                        </span>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <div class="text-[11px] text-gray-600">{{ $p->kategorijabatan }}</div>
-                                                        <div class="text-[9px] text-gray-400 italic">{{ $p->subkategorijabatan }}</div>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="3" class="px-4 py-8 text-center text-gray-400 italic">
-                                                        Belum ada data pengurus yang tercatat untuk kantor ini.
-                                                    </td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
+                                <div class="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 p-4">
+                                    @if($pengurusList->isEmpty())
+                                        <div class="py-8 text-center text-gray-400 italic">
+                                            Belum ada data pengurus yang tercatat untuk kantor ini.
+                                        </div>
+                                    @else
+                                        <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent">
+                                            @foreach($pengurusList as $kategori => $pengurusGroup)
+                                                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                                    <!-- Icon -->
+                                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-primary-100 text-primary-600 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                                                    </div>
+                                                    <!-- Content -->
+                                                    <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-100 bg-white shadow-sm">
+                                                        <div class="mb-2 font-bold text-gray-800 text-sm bg-gray-50 px-3 py-1.5 rounded border border-gray-100 inline-block">{{ $kategori }}</div>
+                                                        
+                                                        @php
+                                                            $subgroups = $pengurusGroup->groupBy('subkategorijabatan');
+                                                        @endphp
+                                                        <div class="space-y-3 mt-3">
+                                                            @foreach($subgroups as $subkategori => $members)
+                                                                <div>
+                                                                    @if($subkategori)
+                                                                        <h5 class="text-[11px] font-bold text-primary-600 uppercase mb-1">{{ $subkategori }}</h5>
+                                                                    @endif
+                                                                    <ul class="space-y-2">
+                                                                        @foreach($members as $p)
+                                                                            <li class="flex items-start gap-2 text-sm bg-gray-50/50 p-2 rounded-lg border border-gray-50">
+                                                                                <div class="shrink-0 mt-0.5">
+                                                                                    <span class="bg-primary-100 text-primary-800 text-[9px] font-black px-1.5 py-0.5 rounded uppercase border border-primary-200 block w-20 text-center shadow-sm">
+                                                                                        {{ $p->jabatan }}
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <div class="font-bold text-gray-800 leading-tight">{{ $p->nama }}</div>
+                                                                                    <div class="text-[10px] text-gray-500 font-mono mt-0.5">{{ $p->noanggota }}</div>
+                                                                                </div>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    </ul>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>

@@ -2,17 +2,24 @@
 
 namespace App\Livewire\Admin;
 
+use App\DataTransferObjects\KtpData;
 use App\Mail\AnggotaDisetujui;
 use App\Models\ActivityLog;
 use App\Models\Anggota;
+use App\Models\Kabupaten;
 use App\Models\KartuAnggota;
 use App\Models\KartuTemplate;
+use App\Models\Kecamatan;
+use App\Models\Kelurahan;
+use App\Models\Propinsi;
 use App\Models\User;
 use App\Services\CardGenerationService;
+use App\Services\KtpOcrService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -21,67 +28,111 @@ class InputManual extends Component
     use WithFileUploads;
 
     public $fotoKtp;
+
     public $fotoWajah;
 
     public string $nik = '';
+
     public string $namaLengkap = '';
+
     public string $tempatLahir = '';
+
     public string $tanggalLahir = '';
+
     public string $jenisKelamin = '';
+
     public string $agama = '';
+
     public string $statusPerkawinan = '';
+
     public string $pekerjaan = '';
+
     public string $kewarganegaraan = 'WNI';
+
     public string $golonganDarah = '';
+
     public string $alamat = '';
+
     public string $rtRw = '';
+
+    public string $propinsi = '';
+
+    public string $kabupaten = '';
+
     public string $kelurahan = '';
+
     public string $kecamatan = '';
+
     public $idpropinsi;
+
     public $idkabupaten;
+
     public $idkecamatan;
+
     public $idkelurahan;
+
     public string $email = '';
+
     public string $username = '';
+
     public string $password = '';
+
     public string $noTelepon = '';
+
     public string $tingkatan = 'PR';
 
     public string $nomorAnggotaType = 'auto'; // 'auto' or 'manual'
+
     public string $manualNomorAnggota = '';
 
     public bool $confirmModalOpen = false;
 
     /** Lists for dropdowns */
     public $provinces = [];
+
     public $cities = [];
+
     public $districts = [];
+
     public $villages = [];
+
+    // OCR status
+    public $isScanning = false;
+
+    public $scanError = null;
 
     public function mount()
     {
         $user = auth()->user();
         $kantor = $user->kantor;
 
-        if ($user->tingkatan === 'DPN' || !$kantor) {
-            $this->provinces = \App\Models\Propinsi::orderBy('propinsi')->get();
+        if ($user->tingkatan === 'DPN' || ! $kantor) {
+            $this->provinces = Propinsi::orderBy('propinsi')->get();
         } else {
             // Restrict based on admin scope
-            $this->provinces = \App\Models\Propinsi::where('id', $kantor->idpropinsi)->get();
+            $prop = Propinsi::find($kantor->idpropinsi);
+            $this->provinces = $prop ? collect([$prop]) : collect();
             $this->idpropinsi = $kantor->idpropinsi;
-            
+            $this->propinsi = $prop->propinsi ?? '';
+
             // Auto-load sub-regions
-            $this->cities = \App\Models\Kabupaten::where('idpropinsi', $this->idpropinsi)->orderBy('kabupaten')->get();
+            $this->cities = Kabupaten::where('idpropinsi', $this->idpropinsi)->orderBy('kabupaten')->get();
             if (in_array($user->tingkatan, ['DPC', 'PR', 'PAR'])) {
                 $this->idkabupaten = $kantor->idkabupaten;
-                $this->districts = \App\Models\Kecamatan::where('idkabupaten', $this->idkabupaten)->orderBy('kecamatan')->get();
+                $kab = Kabupaten::find($this->idkabupaten);
+                $this->kabupaten = $kab->kabupaten ?? '';
+                $this->districts = Kecamatan::where('idkabupaten', $this->idkabupaten)->orderBy('kecamatan')->get();
             }
             if (in_array($user->tingkatan, ['PR', 'PAR'])) {
                 $this->idkecamatan = $kantor->idkecamatan;
-                $this->villages = \App\Models\Kelurahan::where('idkecamatan', $this->idkecamatan)->orderBy('kelurahan')->get();
+                $kec = Kecamatan::find($this->idkecamatan);
+                $this->kecamatan = $kec->kecamatan ?? '';
+                $this->villages = Kelurahan::where('idkecamatan', $this->idkecamatan)->orderBy('kelurahan')->get();
             }
             if ($user->tingkatan === 'PAR') {
                 $this->idkelurahan = $kantor->idkelurahan;
+                $kel = Kelurahan::find($this->idkelurahan);
+                $this->kelurahan = $kel->kelurahan ?? '';
             }
         }
     }
@@ -91,7 +142,7 @@ class InputManual extends Component
         $this->idkabupaten = null;
         $this->idkecamatan = null;
         $this->idkelurahan = null;
-        $this->cities = $value ? \App\Models\Kabupaten::where('idpropinsi', $value)->orderBy('kabupaten')->get() : [];
+        $this->cities = $value ? Kabupaten::where('idpropinsi', $value)->orderBy('kabupaten')->get() : [];
         $this->districts = [];
         $this->villages = [];
     }
@@ -100,10 +151,10 @@ class InputManual extends Component
     {
         $this->idkecamatan = null;
         $this->idkelurahan = null;
-        $this->districts = $value ? \App\Models\Kecamatan::where('idkabupaten', $value)->orderBy('kecamatan')->get() : [];
+        $this->districts = $value ? Kecamatan::where('idkabupaten', $value)->orderBy('kecamatan')->get() : [];
         $this->villages = [];
 
-        $kab = \App\Models\Kabupaten::find($value);
+        $kab = Kabupaten::find($value);
         if ($kab) {
             $this->kabupaten = $kab->kabupaten;
         }
@@ -112,9 +163,9 @@ class InputManual extends Component
     public function updatedIdkecamatan($value)
     {
         $this->idkelurahan = null;
-        $this->villages = $value ? \App\Models\Kelurahan::where('idkecamatan', $value)->orderBy('kelurahan')->get() : [];
+        $this->villages = $value ? Kelurahan::where('idkecamatan', $value)->orderBy('kelurahan')->get() : [];
 
-        $kec = \App\Models\Kecamatan::find($value);
+        $kec = Kecamatan::find($value);
         if ($kec) {
             $this->kecamatan = $kec->kecamatan;
         }
@@ -122,10 +173,35 @@ class InputManual extends Component
 
     public function updatedIdkelurahan($value)
     {
-        $kel = \App\Models\Kelurahan::find($value);
+        $kel = Kelurahan::find($value);
         if ($kel) {
             $this->kelurahan = $kel->kelurahan;
         }
+    }
+
+    public function updatedPropinsi()
+    {
+        $this->resolveRegionalIds();
+    }
+
+    public function updatedKabupaten()
+    {
+        $this->resolveRegionalIds();
+    }
+
+    public function updatedKecamatan()
+    {
+        $this->resolveRegionalIds();
+    }
+
+    public function updatedKelurahan()
+    {
+        $this->resolveRegionalIds();
+    }
+
+    public function updatedFotoKtp()
+    {
+        $this->scanKtp();
     }
 
     public function rules()
@@ -147,6 +223,8 @@ class InputManual extends Component
             'idkabupaten' => ['required', 'string'],
             'idkecamatan' => ['required', 'string'],
             'idkelurahan' => ['required', 'string'],
+            'propinsi' => ['required', 'string', 'min:2'],
+            'kabupaten' => ['required', 'string', 'min:2'],
             'kelurahan' => ['required', 'string', 'min:2'],
             'kecamatan' => ['required', 'string', 'min:2'],
             'email' => ['required', 'email', 'unique:users,email'],
@@ -156,7 +234,7 @@ class InputManual extends Component
             'fotoKtp' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
             'fotoWajah' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
             'nomorAnggotaType' => ['required', 'in:auto,manual'],
-            'tingkatan' => ['required', 'in:DPN,DPD,DPC,PR,PAR']
+            'tingkatan' => ['required', 'in:DPN,DPD,DPC,PR,PAR'],
         ];
 
         if ($this->nomorAnggotaType === 'manual') {
@@ -225,25 +303,20 @@ class InputManual extends Component
             if ($this->nomorAnggotaType === 'manual') {
                 $newNomor = $this->manualNomorAnggota;
             } else {
-                // New Rule: idprop + idkab + {nourut}
+                // New Rule: idprop + idkab + {nourut_per_kantor}
                 $propId = $this->idpropinsi ?? '00';
                 $kabId = $this->idkabupaten ?? '0000';
-                
-                $lastAnggota = Anggota::where('idkabupaten', $kabId)
-                    ->where('nomor_anggota', 'LIKE', $propId . $kabId . '%')
-                    ->whereNotNull('nomor_anggota')
-                    ->orderBy('nomor_anggota', 'desc')
-                    ->lockForUpdate()
-                    ->first();
-                
-                $nextNumber = 1;
-                if ($lastAnggota) {
-                    $lastNomor = $lastAnggota->nomor_anggota;
-                    $lastSequence = intval(substr($lastNomor, -5));
-                    $nextNumber = $lastSequence + 1;
-                }
-                
-                $newNomor = $propId . $kabId . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+                $userAuth = auth()->user();
+                $idKantor = $userAuth->kantor_id;
+
+                // Gunakan urutan per kantor (berdasarkan kantor_id di tabel users untuk member tersebut)
+                $totalExistingInKantor = Anggota::whereHas('user', function ($q) use ($idKantor) {
+                    $q->where('kantor_id', $idKantor);
+                })->whereNotNull('nomor_anggota')->lockForUpdate()->count();
+
+                $nextNumber = $totalExistingInKantor + 1;
+
+                $newNomor = $propId.$kabId.str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
             }
 
             $anggota = Anggota::create([
@@ -278,12 +351,12 @@ class InputManual extends Component
 
             // Create DB record then Generate file
             $template = KartuTemplate::where('is_active', true)->first();
-            
+
             $kartu = KartuAnggota::create([
                 'anggota_id' => $anggota->id,
                 'nomor_anggota' => $newNomor,
                 'template_id' => $template ? $template->id : null,
-                'berlaku_hingga' => Carbon::now()->addYears(5)
+                'berlaku_hingga' => Carbon::now()->addYears(5),
             ]);
 
             app(CardGenerationService::class)->generate($anggota);
@@ -295,11 +368,173 @@ class InputManual extends Component
                 'ip_address' => request()->ip(),
             ]);
 
-            Mail::to($user->email)->queue(new AnggotaDisetujui($anggota));
+            Mail::to($user->email)->queue(new AnggotaDisetujui($anggota, $this->password));
         });
 
         session()->flash('message', 'Data anggota berhasil disimpan dan kartu telah digenerate.');
+
         return redirect()->route('admin.manajemen');
+    }
+
+    public function scanKtp()
+    {
+        if (! $this->fotoKtp) {
+            $this->addError('fotoKtp', 'Silakan pilih foto KTP terlebih dahulu.');
+
+            return;
+        }
+
+        $this->isScanning = true;
+        $this->scanError = null;
+
+        try {
+            $ocrService = app(KtpOcrService::class);
+            $ktpData = $ocrService->scan($this->fotoKtp->getRealPath());
+
+            if ($ktpData) {
+                $this->applyKtpData($ktpData);
+            } else {
+                $this->scanError = 'Gagal mengekstrak data dari KTP. Silakan pastikan foto jelas.';
+            }
+        } catch (\Exception $e) {
+            $this->scanError = 'Terjadi kesalahan saat scan KTP: '.$e->getMessage();
+        } finally {
+            $this->isScanning = false;
+        }
+    }
+
+    private function applyKtpData(KtpData $data)
+    {
+        $fieldMap = [
+            'nik' => 'nik',
+            'nama' => 'namaLengkap',
+            'tempatLahir' => 'tempatLahir',
+            'tanggalLahir' => 'tanggalLahir',
+            'jenisKelamin' => 'jenisKelamin',
+            'agama' => 'agama',
+            'statusKawin' => 'statusPerkawinan',
+            'pekerjaan' => 'pekerjaan',
+            'kewarganegaraan' => 'kewarganegaraan',
+            'golonganDarah' => 'golonganDarah',
+            'alamat' => 'alamat',
+            'rtRw' => 'rtRw',
+            'kelurahan' => 'kelurahan',
+            'kecamatan' => 'kecamatan',
+            'kabupaten' => 'kabupaten',
+            'provinsi' => 'propinsi',
+        ];
+
+        foreach ($fieldMap as $dtoField => $formField) {
+            if ($data->{$dtoField} !== null) {
+                $this->{$formField} = $data->{$dtoField};
+            }
+        }
+
+        // Resolve IDs immediately after scan
+        $this->resolveRegionalIds();
+    }
+
+    /**
+     * Format regional strings according to user rules.
+     */
+    private function formatRegionalStrings(): void
+    {
+        if ($this->propinsi) {
+            $this->propinsi = Str::title(strtolower(trim($this->propinsi)));
+        }
+        if ($this->kelurahan) {
+            $this->kelurahan = Str::title(strtolower(trim($this->kelurahan)));
+        }
+        if ($this->kecamatan) {
+            $this->kecamatan = strtoupper(trim($this->kecamatan));
+        }
+
+        if ($this->kabupaten) {
+            $kabRaw = strtoupper(trim($this->kabupaten));
+            $name = trim(Str::replaceFirst('KABUPATEN', '', $kabRaw));
+            $name = trim(Str::replaceFirst('KAB.', '', $name));
+            $name = trim(Str::replaceFirst('KAB', '', $name));
+            $name = trim(Str::replaceFirst('KOTA', '', $name));
+            $this->kabupaten = strtoupper($name);
+        }
+    }
+
+    /**
+     * Lookup IDs based on formatted text inputs.
+     */
+    private function resolveRegionalIds(): void
+    {
+        // Reset IDs first to catch failed matches
+        $this->idpropinsi = null;
+        $this->idkabupaten = null;
+        $this->idkecamatan = null;
+        $this->idkelurahan = null;
+
+        $this->formatRegionalStrings();
+
+        // 1. Provinsi (Handle DKI, DIY, etc.)
+        $searchProv = strtolower($this->propinsi);
+        // Expand abbreviations
+        if (str_contains($searchProv, 'dki')) {
+            $searchProv = str_replace('dki', 'daerah khusus ibukota', $searchProv);
+        }
+        if (str_contains($searchProv, 'diy')) {
+            $searchProv = str_replace('diy', 'daerah istimewa', $searchProv);
+        }
+        if (str_contains($searchProv, 'd.i.')) {
+            $searchProv = str_replace('d.i.', 'daerah istimewa', $searchProv);
+        }
+
+        $prop = Propinsi::whereRaw('LOWER(propinsi) LIKE ?', ['%'.trim($searchProv).'%'])->first();
+
+        // Fallback: Super fuzzy (no spaces)
+        if (! $prop) {
+            $noSpace = str_replace([' ', '.', '-'], '', $searchProv);
+            $prop = Propinsi::whereRaw("REPLACE(REPLACE(REPLACE(LOWER(propinsi), ' ', ''), '.', ''), '-', '') LIKE ?", ['%'.$noSpace.'%'])->first();
+        }
+
+        if ($prop) {
+            $this->idpropinsi = (string) $prop->id;
+            $this->updatedIdpropinsi($prop->id);
+
+            // 2. Kabupaten
+            $searchKab = strtolower($this->kabupaten);
+            $kab = Kabupaten::where('idpropinsi', $this->idpropinsi)
+                ->whereRaw('LOWER(kabupaten) LIKE ?', ['%'.$searchKab.'%'])
+                ->first();
+
+            if (! $kab) {
+                $noSpaceKab = str_replace([' ', '.', '-', 'KAB', 'KOTA'], '', $searchKab);
+                $kab = Kabupaten::where('idpropinsi', $this->idpropinsi)
+                    ->whereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LOWER(kabupaten), ' ', ''), '.', ''), '-', ''), 'KAB', ''), 'KOTA', '') LIKE ?", ['%'.$noSpaceKab.'%'])
+                    ->first();
+            }
+
+            if ($kab) {
+                $this->idkabupaten = (string) $kab->id;
+                $this->updatedIdkabupaten($kab->id);
+
+                // 3. Kecamatan
+                $kec = Kecamatan::where('idkabupaten', $this->idkabupaten)
+                    ->whereRaw('LOWER(kecamatan) LIKE ?', ['%'.strtolower($this->kecamatan).'%'])
+                    ->first();
+
+                if ($kec) {
+                    $this->idkecamatan = (string) $kec->id;
+                    $this->updatedIdkecamatan($kec->id);
+
+                    // 4. Kelurahan
+                    $kel = Kelurahan::where('idkecamatan', $this->idkecamatan)
+                        ->whereRaw('LOWER(kelurahan) LIKE ?', ['%'.strtolower($this->kelurahan).'%'])
+                        ->first();
+
+                    if ($kel) {
+                        $this->idkelurahan = (string) $kel->id;
+                        $this->updatedIdkelurahan($kel->id);
+                    }
+                }
+            }
+        }
     }
 
     /**

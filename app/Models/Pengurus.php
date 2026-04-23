@@ -22,6 +22,9 @@ class Pengurus extends Model
         'kantor',
         'kantor_id',
         'keterangan',
+        'periode_mulai',
+        'periode_selesai',
+        'status_aktif',
     ];
 
     /**

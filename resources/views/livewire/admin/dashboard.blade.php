@@ -111,21 +111,27 @@
             </div>
             <ul class="divide-y divide-gray-100">
                 @forelse($pendaftaranTerbaru as $anggota)
-                    <li class="py-3 flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
-                            {{ mb_substr($anggota->nama_lengkap, 0, 1) }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-gray-800 truncate">{{ $anggota->nama_lengkap }}</p>
-                            <p class="text-xs text-gray-400">{{ $anggota->created_at->diffForHumans() }}</p>
-                        </div>
-                        @if($anggota->status === 'disetujui')
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Disetujui</span>
-                        @elseif($anggota->status === 'menunggu')
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Menunggu</span>
-                        @else
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Ditolak</span>
-                        @endif
+                    <li class="py-3">
+                        <a href="{{ route('admin.manajemen', ['search' => $anggota->nama_lengkap]) }}" 
+                           class="flex items-center gap-3 group hover:bg-primary-50/50 p-2 -mx-2 rounded-xl transition-colors">
+                            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center text-white font-bold text-xs shadow-sm group-hover:scale-105 transition-transform">
+                                {{ mb_substr($anggota->nama_lengkap, 0, 1) }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-gray-800 truncate group-hover:text-primary-700 transition-colors">{{ $anggota->nama_lengkap }}</p>
+                                <p class="text-xs text-gray-400">{{ $anggota->created_at->diffForHumans() }}</p>
+                            </div>
+                            @if($anggota->status === 'disetujui')
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Disetujui</span>
+                            @elseif($anggota->status === 'menunggu')
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Menunggu</span>
+                            @else
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Ditolak</span>
+                            @endif
+                            <svg class="w-4 h-4 text-gray-300 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                     </li>
                 @empty
                     <li class="py-6 text-center text-sm text-gray-400">Belum ada pendaftaran.</li>

@@ -16,82 +16,99 @@
     <div class="bg-white/70 backdrop-blur-xl border border-black/5 shadow-md rounded-2xl p-6 sm:p-8">
         <form wire:submit.prevent="openConfirm" class="space-y-8">
             <!-- Section 1: Nomor Anggota -->
+            <!-- Section 1: Dokumen -->
             <div>
-                <!-- <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Metode Penomoran</label>
-                        <div class="flex items-center gap-4 py-2">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input wire:model.live="nomorAnggotaType" type="radio" value="auto"
-                                    class="w-4 h-4 text-primary-600 focus:ring-primary-500">
-                                <span class="text-sm text-gray-700">Otomatis</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input wire:model.live="nomorAnggotaType" type="radio" value="manual"
-                                    class="w-4 h-4 text-primary-600 focus:ring-primary-500">
-                                <span class="text-sm text-gray-700">Manual</span>
-                            </label>
-                        </div>
-                    </div> -->
-                <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-6 flex items-center gap-2">
                     <span
                         class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 text-xs font-bold flex items-center justify-center">1</span>
-                    Tingkatan Organisasi
-                </h3> <select wire:model="tingkatan"
-                    class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
-                    <option value="DPN">DPN (Nasional)</option>
-                    <option value="DPD">DPD (Provinsi)</option>
-                    <option value="DPC">DPC (Kabupaten/Kota)</option>
-                    <option value="PR">PR (Kecamatan)</option>
-                    <option value="PAR">PAR (Kelurahan/Desa)</option>
-                </select>
-                @error('tingkatan') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                @enderror
-                @if($nomorAnggotaType === 'manual')
-                    <div>
-                        <label for="manualNomorAnggota" class="block mb-2 text-sm font-medium text-gray-700">Nomor
-                            Custom (5 Digit)</label>
-                        <input type="text" wire:model.live.debounce.500ms="manualNomorAnggota" id="manualNomorAnggota"
-                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm font-mono"
-                            placeholder="00123">
-                        @error('manualNomorAnggota') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                        @enderror
-                    </div>
-                @endif
-            </div>
-
-            <!-- Section 2: Dokumen -->
-            <div>
-                <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <span
-                        class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 text-xs font-bold flex items-center justify-center">2</span>
                     Dokumen
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Foto KTP -->
                     <div>
                         <label class="block mb-2 text-sm font-medium text-gray-700">Foto KTP</label>
-                        <input wire:model="fotoKtp" type="file" accept="image/jpeg,image/png"
-                            class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                        <label for="fotoKtp"
+                            class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-200 border-dashed rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors overflow-hidden relative">
+                            @if ($this->getKtpPreviewUrl())
+                                <img src="{{ $this->getKtpPreviewUrl() }}"
+                                    class="w-full h-full object-contain p-2 rounded-2xl">
+                            @else
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                                    <svg class="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M4 16l4-4m0 0l4 4m-4-4v12M20 8l-4 4m0 0l-4-4m4 4V0" />
+                                    </svg>
+                                    <p class="text-sm text-gray-500"><span class="font-semibold text-primary-600">Klik untuk upload KTP</span></p>
+                                    <p class="text-xs text-gray-400 mt-1">Sistem akan memindai data secara otomatis</p>
+                                </div>
+                            @endif
+                            <input wire:model="fotoKtp" id="fotoKtp" type="file" class="hidden"
+                                accept="image/jpeg,image/png" />
+                        </label>
+                        
+                        <div wire:loading.flex wire:target="fotoKtp, scanKtp"
+                            class="text-[11px] w-full text-indigo-600 mt-2 items-center gap-2 font-medium bg-indigo-50/50 p-2 rounded-lg border border-indigo-100/50">
+                            <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            <span>Mengunggah & Memindai KTP Otomatis...</span>
+                        </div>
+
                         @error('fotoKtp') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                        @if($this->getKtpPreviewUrl())<img src="{{ $this->getKtpPreviewUrl() }}"
-                        class="h-24 object-contain rounded-xl border mt-2">@endif
+                        @if($scanError) <span class="text-red-500 text-xs mt-1 block font-bold">⚠️ {{ $scanError }}</span> @endif
                     </div>
+
+                    <!-- Foto Wajah -->
                     <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-700">Foto Wajah</label>
-                        <input wire:model="fotoWajah" type="file" accept="image/jpeg,image/png"
-                            class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                        <label class="block mb-2 text-sm font-medium text-gray-700">Foto Wajah (Selfie)</label>
+                        <label for="fotoWajah"
+                            class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-200 border-dashed rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors overflow-hidden">
+                            @if ($this->getWajahPreviewUrl())
+                                <img src="{{ $this->getWajahPreviewUrl() }}"
+                                    class="w-full h-full object-cover p-2 rounded-2xl">
+                            @else
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg class="w-10 h-10 mb-3 text-gray-300" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <p class="text-sm text-gray-500"><span class="font-semibold text-primary-600">Klik upload foto wajah</span></p>
+                                    <p class="text-xs text-gray-400 mt-1">Pastikan wajah terlihat jelas</p>
+                                </div>
+                            @endif
+                            <input wire:model="fotoWajah" id="fotoWajah" type="file" class="hidden"
+                                accept="image/jpeg,image/png" />
+                        </label>
+                        <div wire:loading.flex wire:target="fotoWajah"
+                            class="text-[11px] text-indigo-600 mt-2 items-center gap-2 font-medium bg-indigo-50/50 p-2 rounded-lg border border-indigo-100/50">
+                            <svg class="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Mengunggah...
+                        </div>
                         @error('fotoWajah') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
                         @enderror
-                        @if($this->getWajahPreviewUrl())<img src="{{ $this->getWajahPreviewUrl() }}"
-                        class="h-24 w-20 object-cover rounded-xl border mt-2">@endif
                     </div>
                 </div>
             </div>
 
-            <!-- Section 3: Data Pribadi -->
+            <!-- Section 2: Data Pribadi -->
             <div>
                 <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-4 flex items-center gap-2">
                     <span
-                        class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 text-xs font-bold flex items-center justify-center">3</span>
+                        class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 text-xs font-bold flex items-center justify-center">2</span>
                     Data Pribadi
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -201,63 +218,40 @@
                     </div>
                     <div>
                         <label class="block mb-1.5 text-sm font-medium text-gray-700">Provinsi</label>
-                        <select wire:model.live="idpropinsi"
-                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm">
-                            <option value="">Pilih Provinsi</option>
-                            @foreach($provinces as $province)
-                                <option value="{{ $province->id }}">{{ $province->propinsi }}</option>
-                            @endforeach
-                        </select>
-                        @error('idpropinsi') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                        @enderror
+                        <input type="text" wire:model.live="propinsi"
+                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: Jawa Timur">
+                        @error('propinsi') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        @error('idpropinsi') <span class="text-red-500 text-[10px] mt-1 block font-bold">⚠️ Provinsi tidak ditemukan di database</span> @enderror
                     </div>
                     <div>
                         <label class="block mb-1.5 text-sm font-medium text-gray-700">Kota / Kabupaten</label>
-                        <select wire:model.live="idkabupaten"
-                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm"
-                            {{ empty($cities) ? 'disabled' : '' }}>
-                            <option value="">Pilih Kota/Kab</option>
-                            @foreach($cities as $city)
-                                <option value="{{ $city->id }}">{{ $city->kabupaten }}</option>
-                            @endforeach
-                        </select>
-                        @error('idkabupaten') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                        @enderror
+                        <input type="text" wire:model.live="kabupaten"
+                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: SAMPANG atau Kota Surabaya">
+                        @error('kabupaten') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        @error('idkabupaten') <span class="text-red-500 text-[10px] mt-1 block font-bold">⚠️ Kota/Kab tidak ditemukan di database</span> @enderror
                     </div>
                     <div>
                         <label class="block mb-1.5 text-sm font-medium text-gray-700">Kecamatan</label>
-                        <select wire:model.live="idkecamatan"
-                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm"
-                            {{ empty($districts) ? 'disabled' : '' }}>
-                            <option value="">Pilih Kecamatan</option>
-                            @foreach($districts as $district)
-                                <option value="{{ $district->id }}">{{ $district->kecamatan }}</option>
-                            @endforeach
-                        </select>
-                        @error('idkecamatan') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                        @enderror
+                        <input type="text" wire:model.live="kecamatan"
+                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: SAMPANG">
+                        @error('kecamatan') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        @error('idkecamatan') <span class="text-red-500 text-[10px] mt-1 block font-bold">⚠️ Kecamatan tidak ditemukan di database</span> @enderror
                     </div>
                     <div>
                         <label class="block mb-1.5 text-sm font-medium text-gray-700">Kelurahan / Desa</label>
-                        <select wire:model.live="idkelurahan"
-                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm"
-                            {{ empty($villages) ? 'disabled' : '' }}>
-                            <option value="">Pilih Kelurahan/Desa</option>
-                            @foreach($villages as $village)
-                                <option value="{{ $village->id }}">{{ $village->kelurahan }}</option>
-                            @endforeach
-                        </select>
-                        @error('idkelurahan') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
-                        @enderror
+                        <input type="text" wire:model.live="kelurahan"
+                            class="bg-gray-50 border border-black/10 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 outline-none transition-all w-full rounded-xl px-4 py-2.5 text-sm" placeholder="Contoh: Dalpenang">
+                        @error('kelurahan') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        @error('idkelurahan') <span class="text-red-500 text-[10px] mt-1 block font-bold">⚠️ Kelurahan tidak ditemukan di database</span> @enderror
                     </div>
                 </div>
             </div>
 
-            <!-- Section 4: Akun -->
+            <!-- Section 3: Akun -->
             <div>
                 <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-4 flex items-center gap-2">
                     <span
-                        class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 text-xs font-bold flex items-center justify-center">4</span>
+                        class="w-6 h-6 rounded-full bg-primary-100 text-primary-700 text-xs font-bold flex items-center justify-center">3</span>
                     Informasi Akun
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

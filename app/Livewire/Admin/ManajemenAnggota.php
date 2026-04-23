@@ -6,36 +6,52 @@ use App\Mail\AnggotaDisetujui;
 use App\Mail\AnggotaDitolak;
 use App\Models\ActivityLog;
 use App\Models\Anggota;
+use App\Models\Kabupaten;
 use App\Models\KartuAnggota;
 use App\Models\KartuTemplate;
+use App\Models\Kecamatan;
+use App\Models\Kelurahan;
+use App\Models\Propinsi;
+use App\Models\User;
 use App\Services\CardGenerationService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Spatie\SimpleExcel\SimpleExcelReader;
 
 class ManajemenAnggota extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithFileUploads, WithPagination;
 
     public $importFile;
+
     public $importModalOpen = false;
 
     public $search = '';
+
     public $statusFilter = '';
 
     // Modal view properties
     public $detailAnggota = null;
+
     public $viewModalOpen = false;
+
     // Reject properties
     public $rejectModalOpen = false;
+
     public $rejectReason = '';
+
     public $rejectAnggotaId = null;
 
     // Zoom properties
     public $zoomModalOpen = false;
+
     public $zoomImageUrl = '';
 
     public function openZoomModal($path)
@@ -83,30 +99,23 @@ class ManajemenAnggota extends Component
 
         if ($anggota->status === 'disetujui') {
             session()->flash('warning', 'Anggota sudah disetujui sebelumnya.');
+
             return;
         }
 
         try {
             DB::transaction(function () use ($anggota) {
-                // Penomoran Anggota: idprop + idkab + {nourut}
                 $propId = $anggota->idpropinsi ?? '00';
                 $kabId = $anggota->idkabupaten ?? '0000';
+                $idKantor = $anggota->user->kantor_id;
 
-                // Find the last sequence for this specific kabupaten
-                $lastAnggota = Anggota::where('idkabupaten', $kabId)
-                    ->where('nomor_anggota', 'LIKE', $propId . $kabId . '%')
-                    ->whereNotNull('nomor_anggota')
-                    ->orderBy('nomor_anggota', 'desc')
-                    ->first();
+                // Gunakan urutan per kantor
+                $totalExistingInKantor = Anggota::whereHas('user', function ($q) use ($idKantor) {
+                    $q->where('kantor_id', $idKantor);
+                })->whereNotNull('nomor_anggota')->lockForUpdate()->count();
+                $nextNumber = $totalExistingInKantor + 1;
 
-                $nextNumber = 1;
-                if ($lastAnggota) {
-                    $lastNomor = $lastAnggota->nomor_anggota;
-                    $lastSequence = intval(substr($lastNomor, -5));
-                    $nextNumber = $lastSequence + 1;
-                }
-
-                $newNomor = $propId . $kabId . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+                $newNomor = $propId.$kabId.str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
 
                 $anggota->update([
                     'status' => 'disetujui',
@@ -124,10 +133,8 @@ class ManajemenAnggota extends Component
                     'berlaku_hingga' => Carbon::now()->addYears(5),
                 ]);
 
-                // 2. Generate Physical PDF
                 app(CardGenerationService::class)->generate($anggota);
 
-                // 3. Log Activity
                 ActivityLog::create([
                     'user_id' => auth()->id(),
                     'action' => 'approve_member',
@@ -135,9 +142,7 @@ class ManajemenAnggota extends Component
                     'ip_address' => request()->ip(),
                 ]);
 
-                // 4. Send Email (Queued) - Handled after commit
             });
-
             // Send notification after successful transaction
             if ($anggota->user && $anggota->user->email) {
                 Mail::to($anggota->user->email)->queue(new AnggotaDisetujui($anggota));
@@ -146,8 +151,8 @@ class ManajemenAnggota extends Component
             session()->flash('message', 'Anggota berhasil disetujui dan kartu telah digenerate.');
             $this->closeViewModal();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Error approving member {$id}: " . $e->getMessage());
-            session()->flash('error', 'Gagal menyetujui anggota: ' . $e->getMessage());
+            Log::error("Error approving member {$id}: ".$e->getMessage());
+            session()->flash('error', 'Gagal menyetujui anggota: '.$e->getMessage());
         }
     }
 
@@ -168,7 +173,7 @@ class ManajemenAnggota extends Component
     public function tolak()
     {
         $this->validate([
-            'rejectReason' => 'required|string|min:10'
+            'rejectReason' => 'required|string|min:10',
         ]);
 
         $anggota = Anggota::with('user')->findOrFail($this->rejectAnggotaId);
@@ -198,7 +203,7 @@ class ManajemenAnggota extends Component
         $anggota = Anggota::findOrFail($id);
 
         $anggota->update([
-            'status' => 'menunggu'
+            'status' => 'menunggu',
         ]);
 
         ActivityLog::create([
@@ -231,7 +236,7 @@ class ManajemenAnggota extends Component
 
         try {
             $path = $this->importFile->getRealPath();
-            $rows = \Spatie\SimpleExcel\SimpleExcelReader::create($path)
+            $rows = SimpleExcelReader::create($path)
                 ->noHeaderRow()
                 ->fromSheet(2)
                 ->getRows();
@@ -244,7 +249,7 @@ class ManajemenAnggota extends Component
                     $normalizedRow = array_values($row);
 
                     // Pengecekan data minimal (Index 2: Nama, Index 3: NIK)
-                    if (!isset($normalizedRow[2]) || !isset($normalizedRow[3])) {
+                    if (! isset($normalizedRow[2]) || ! isset($normalizedRow[3])) {
                         continue;
                     }
 
@@ -262,67 +267,80 @@ class ManajemenAnggota extends Component
 
                     // Mapping Wilayah
                     $idpropinsi = null;
-                    if (!empty($normalizedRow[17])) {
+                    if (! empty($normalizedRow[17])) {
                         $search = strtolower(trim($normalizedRow[17]));
-                        if (str_contains($search, 'dki'))
+                        if (str_contains($search, 'dki')) {
                             $search = str_replace('dki', 'daerah khusus ibukota', $search);
-                        if (str_contains($search, 'diy'))
-                            $search = str_replace('diy', 'daerah istimewa', $search);
-                        $prop = \App\Models\Propinsi::whereRaw('LOWER(propinsi) LIKE ?', ['%' . $search . '%'])->first();
-                        if (!$prop) {
-                            $noSpace = str_replace([' ', '.', '-'], '', $search);
-                            $prop = \App\Models\Propinsi::whereRaw("REPLACE(REPLACE(REPLACE(LOWER(propinsi), ' ', ''), '.', ''), '-', '') LIKE ?", ['%' . $noSpace . '%'])->first();
                         }
-                        if ($prop)
+                        if (str_contains($search, 'diy')) {
+                            $search = str_replace('diy', 'daerah istimewa', $search);
+                        }
+                        $prop = Propinsi::whereRaw('LOWER(propinsi) LIKE ?', ['%'.$search.'%'])->first();
+                        if (! $prop) {
+                            $noSpace = str_replace([' ', '.', '-'], '', $search);
+                            $prop = Propinsi::whereRaw("REPLACE(REPLACE(REPLACE(LOWER(propinsi), ' ', ''), '.', ''), '-', '') LIKE ?", ['%'.$noSpace.'%'])->first();
+                        }
+                        if ($prop) {
                             $idpropinsi = $prop->id;
+                        }
                     }
 
                     $idkabupaten = null;
-                    if (!empty($normalizedRow[18])) {
+                    if (! empty($normalizedRow[18])) {
                         $search = strtolower(trim($normalizedRow[18]));
-                        $kabQuery = \App\Models\Kabupaten::whereRaw('LOWER(kabupaten) LIKE ?', ['%' . $search . '%']);
-                        if ($idpropinsi)
+                        $kabQuery = Kabupaten::whereRaw('LOWER(kabupaten) LIKE ?', ['%'.$search.'%']);
+                        if ($idpropinsi) {
                             $kabQuery->where('idpropinsi', $idpropinsi);
+                        }
                         $kab = $kabQuery->first();
-                        if (!$kab) {
+                        if (! $kab) {
                             $noSpace = str_replace([' ', '.', '-', 'kabupaten', 'kab', 'kota'], '', $search);
-                            $kabFuzzyQuery = \App\Models\Kabupaten::whereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LOWER(kabupaten), ' ', ''), '.', ''), '-', ''), 'kabupaten', ''), 'kota', '') LIKE ?", ['%' . $noSpace . '%']);
-                            if ($idpropinsi)
+                            $kabFuzzyQuery = Kabupaten::whereRaw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LOWER(kabupaten), ' ', ''), '.', ''), '-', ''), 'kabupaten', ''), 'kota', '') LIKE ?", ['%'.$noSpace.'%']);
+                            if ($idpropinsi) {
                                 $kabFuzzyQuery->where('idpropinsi', $idpropinsi);
+                            }
                             $kab = $kabFuzzyQuery->first();
                         }
-                        if ($kab)
+                        if ($kab) {
                             $idkabupaten = $kab->id;
+                        }
                     }
 
                     $idkecamatan = null;
-                    if (!empty($normalizedRow[19])) {
-                        $kecQuery = \App\Models\Kecamatan::whereRaw('LOWER(kecamatan) LIKE ?', ['%' . strtolower(trim($normalizedRow[19])) . '%']);
-                        if ($idkabupaten)
+                    if (! empty($normalizedRow[19])) {
+                        $kecQuery = Kecamatan::whereRaw('LOWER(kecamatan) LIKE ?', ['%'.strtolower(trim($normalizedRow[19])).'%']);
+                        if ($idkabupaten) {
                             $kecQuery->where('idkabupaten', $idkabupaten);
+                        }
                         $kec = $kecQuery->first();
-                        if ($kec)
+                        if ($kec) {
                             $idkecamatan = $kec->id;
+                        }
                     }
 
                     $idkelurahan = null;
-                    if (!empty($normalizedRow[20])) {
-                        $kelQuery = \App\Models\Kelurahan::whereRaw('LOWER(kelurahan) LIKE ?', ['%' . strtolower(trim($normalizedRow[20])) . '%']);
-                        if ($idkecamatan)
+                    if (! empty($normalizedRow[20])) {
+                        $kelQuery = Kelurahan::whereRaw('LOWER(kelurahan) LIKE ?', ['%'.strtolower(trim($normalizedRow[20])).'%']);
+                        if ($idkecamatan) {
                             $kelQuery->where('idkecamatan', $idkecamatan);
+                        }
                         $kel = $kelQuery->first();
-                        if ($kel)
+                        if ($kel) {
                             $idkelurahan = $kel->id;
+                        }
                     }
 
                     // Security: Skip jika wilayah tidak masuk lingkup Admin
                     if ($userAuth->tingkatan !== 'DPN') {
-                        if ($userAuth->tingkatan === 'DPD' && $idpropinsi != $userAuth->kantor->idpropinsi)
+                        if ($userAuth->tingkatan === 'DPD' && $idpropinsi != $userAuth->kantor->idpropinsi) {
                             continue;
-                        if ($userAuth->tingkatan === 'DPC' && $idkabupaten != $userAuth->kantor->idkabupaten)
+                        }
+                        if ($userAuth->tingkatan === 'DPC' && $idkabupaten != $userAuth->kantor->idkabupaten) {
                             continue;
-                        if ($userAuth->tingkatan === 'PR' && $idkecamatan != $userAuth->kantor->idkecamatan)
+                        }
+                        if ($userAuth->tingkatan === 'PR' && $idkecamatan != $userAuth->kantor->idkecamatan) {
                             continue;
+                        }
                     }
 
                     // Penomoran Anggota
@@ -330,40 +348,34 @@ class ManajemenAnggota extends Component
                     if (empty($nomor_anggota)) {
                         $propId = $idpropinsi ?? '00';
                         $kabId = $idkabupaten ?? '0000';
+                        $idKantor = $user->kantor_id;
 
-                        $lastAnggota = \App\Models\Anggota::where('idkabupaten', $kabId)
-                            ->where('nomor_anggota', 'LIKE', $propId . $kabId . '%')
-                            ->whereNotNull('nomor_anggota')
-                            ->orderBy('nomor_anggota', 'desc')
-                            ->lockForUpdate()
-                            ->first();
-
-                        $nextNumber = 1;
-                        if ($lastAnggota) {
-                            $lastSequence = intval(substr($lastAnggota->nomor_anggota, -5));
-                            $nextNumber = $lastSequence + 1;
-                        }
-                        $nomor_anggota = $propId . $kabId . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+                        // Gunakan urutan per kantor
+                        $totalExistingInKantor = Anggota::whereHas('user', function ($q) use ($idKantor) {
+                            $q->where('kantor_id', $idKantor);
+                        })->whereNotNull('nomor_anggota')->lockForUpdate()->count();
+                        $nextNumber = $totalExistingInKantor + 1;
+                        $nomor_anggota = $propId.$kabId.str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
                     }
 
                     // Pembuatan User Akun
                     $email = trim($normalizedRow[7] ?? '');
-                    $username = trim($normalizedRow[21] ?? ('user_' . time() . rand(100, 999)));
+                    $username = trim($normalizedRow[21] ?? ('user_'.time().rand(100, 999)));
                     $user = null;
 
-                    if (!empty($email)) {
-                        $user = \App\Models\User::where('email', $email)->first();
+                    if (! empty($email)) {
+                        $user = User::where('email', $email)->first();
                     }
-                    if (!$user && !empty($username)) {
-                        $user = \App\Models\User::where('username', $username)->first();
+                    if (! $user && ! empty($username)) {
+                        $user = User::where('username', $username)->first();
                     }
 
-                    if (!$user) {
-                        $user = \App\Models\User::create([
+                    if (! $user) {
+                        $user = User::create([
                             'name' => trim($normalizedRow[2]),
                             'username' => $username,
-                            'email' => empty($email) ? ($username . '@simok.local') : $email,
-                            'password' => \Illuminate\Support\Facades\Hash::make(trim($normalizedRow[22] ?? 'Password123!')),
+                            'email' => empty($email) ? ($username.'@simok.local') : $email,
+                            'password' => Hash::make(trim($normalizedRow[22] ?? 'Password123!')),
                             'tingkatan' => 'PR',
                             'role' => 'anggota',
                         ]);
@@ -376,7 +388,7 @@ class ManajemenAnggota extends Component
                     try {
                         if ($rawTglLahir instanceof \DateTimeInterface) {
                             $tglLahir = $rawTglLahir->format('Y-m-d');
-                        } elseif (!empty(trim((string) $rawTglLahir))) {
+                        } elseif (! empty(trim((string) $rawTglLahir))) {
                             $strVal = trim((string) $rawTglLahir);
                             $strVal = str_ireplace(
                                 ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'],
@@ -384,9 +396,9 @@ class ManajemenAnggota extends Component
                                 $strVal
                             );
                             if (is_numeric($strVal)) {
-                                $tglLahir = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($strVal)->format('Y-m-d');
+                                $tglLahir = Date::excelToDateTimeObject($strVal)->format('Y-m-d');
                             } else {
-                                $tglLahir = \Illuminate\Support\Carbon::parse($strVal)->format('Y-m-d');
+                                $tglLahir = Carbon::parse($strVal)->format('Y-m-d');
                             }
                         }
                     } catch (\Exception $e) {
@@ -402,12 +414,12 @@ class ManajemenAnggota extends Component
                     try {
                         if ($rawTglDaftar instanceof \DateTimeInterface) {
                             $tglDaftar = $rawTglDaftar->format('Y-m-d H:i:s');
-                        } elseif (!empty(trim((string) $rawTglDaftar))) {
+                        } elseif (! empty(trim((string) $rawTglDaftar))) {
                             $strVal = trim((string) $rawTglDaftar);
                             if (is_numeric($strVal)) {
-                                $tglDaftar = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($strVal)->format('Y-m-d H:i:s');
+                                $tglDaftar = Date::excelToDateTimeObject($strVal)->format('Y-m-d H:i:s');
                             } else {
-                                $tglDaftar = \Illuminate\Support\Carbon::parse($strVal)->format('Y-m-d H:i:s');
+                                $tglDaftar = Carbon::parse($strVal)->format('Y-m-d H:i:s');
                             }
                         }
                     } catch (\Exception $e) {
@@ -417,7 +429,7 @@ class ManajemenAnggota extends Component
                     $nik = trim((string) ($normalizedRow[3] ?? ''));
 
                     // Simpan Anggota
-                    $anggota = \App\Models\Anggota::updateOrCreate(
+                    $anggota = Anggota::updateOrCreate(
                         ['nik' => $nik],
                         [
                             'user_id' => $user->id,
@@ -427,7 +439,7 @@ class ManajemenAnggota extends Component
                             'tanggal_lahir' => $tglLahir,
                             'no_telepon' => trim($normalizedRow[6] ?? ''),
                             'alamat' => trim($normalizedRow[8] ?? ''),
-                            'rt_rw' => trim($normalizedRow[9] ?? '') . '/' . trim($normalizedRow[10] ?? ''),
+                            'rt_rw' => trim($normalizedRow[9] ?? '').'/'.trim($normalizedRow[10] ?? ''),
                             'jenis_kelamin' => trim($normalizedRow[11] ?? ''),
                             'agama' => trim($normalizedRow[12] ?? ''),
                             'status_perkawinan' => trim($normalizedRow[13] ?? ''),
@@ -456,7 +468,7 @@ class ManajemenAnggota extends Component
             $this->closeImportModal();
             session()->flash('message', "Import berhasil! {$importedCount} data anggota telah direkam/diperbarui.");
         } catch (\Exception $e) {
-            $this->addError('importFile', 'Gagal memproses file: ' . $e->getMessage());
+            $this->addError('importFile', 'Gagal memproses file: '.$e->getMessage());
         }
     }
 
@@ -466,9 +478,9 @@ class ManajemenAnggota extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('nama_lengkap', 'like', '%' . $this->search . '%')
-                    ->orWhere('nik', 'like', '%' . $this->search . '%')
-                    ->orWhere('nomor_anggota', 'like', '%' . $this->search . '%');
+                $q->where('nama_lengkap', 'like', '%'.$this->search.'%')
+                    ->orWhere('nik', 'like', '%'.$this->search.'%')
+                    ->orWhere('nomor_anggota', 'like', '%'.$this->search.'%');
             });
         }
 

@@ -84,6 +84,48 @@
                     <span class="font-bold">Catatan:</span> Data KTP (Nama, NIK, TTL) tidak dapat diubah oleh anggota. Hubungi administrator jika ada kesalahan data.
                 </div>
             @endif
+
+            <!-- Riwayat Kepengurusan -->
+            <div class="mt-6 border-t border-gray-100 pt-6">
+                <h3 class="text-sm font-bold text-gray-800 uppercase tracking-widest mb-4">Riwayat Organisasi (Kepengurusan)</h3>
+                @if($riwayatPengurus->isEmpty())
+                    <p class="text-sm text-gray-500 italic">Belum ada riwayat kepengurusan.</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($riwayatPengurus as $riwayat)
+                            <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">{{ $riwayat->jabatan }}</h4>
+                                        <p class="text-xs text-gray-500 mt-0.5">{{ $riwayat->kantor ?? '-' }}</p>
+                                    </div>
+                                    @if($riwayat->status_aktif)
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-700">Aktif</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold bg-gray-200 text-gray-700">Non-Aktif</span>
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-4 text-xs text-gray-500 mt-2">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        <span>
+                                            {{ $riwayat->periode_mulai ? \Carbon\Carbon::parse($riwayat->periode_mulai)->translatedFormat('M Y') : '?' }} 
+                                            - 
+                                            {{ $riwayat->periode_selesai ? \Carbon\Carbon::parse($riwayat->periode_selesai)->translatedFormat('M Y') : 'Sekarang' }}
+                                        </span>
+                                    </div>
+                                    @if($riwayat->keterangan)
+                                        <div class="flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span>{{ $riwayat->keterangan }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 

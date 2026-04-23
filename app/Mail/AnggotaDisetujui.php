@@ -14,9 +14,7 @@ class AnggotaDisetujui extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Anggota $anggota)
-    {
-    }
+    public function __construct(public Anggota $anggota, public ?string $password = null) {}
 
     public function envelope(): Envelope
     {

@@ -12,11 +12,14 @@ class StrukturOrganisasi extends Component
     use WithPagination;
 
     public $selectedLevel = null;
+
     public $search = '';
 
     // Detail Modal State
     public $isDetailModalOpen = false;
+
     public $detailKantor = null;
+
     public $pengurusList = [];
 
     protected $queryString = [
@@ -45,10 +48,12 @@ class StrukturOrganisasi extends Component
         $this->detailKantor = Kantor::with('parent')->findOrFail($id);
         $this->pengurusList = Pengurus::where('kantor_id', $id)
             ->with('anggota')
-            ->orderBy('kategorijabatan')
-            ->orderBy('jabatan')
-            ->get();
-        
+            ->orderByRaw("FIELD(kategorijabatan, 'Penasehat', 'Pengurus Harian', 'Pengurus Bidang')")
+            ->orderBy('subkategorijabatan')
+            ->orderByRaw("FIELD(jabatan, 'Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara', 'Koordinator', 'Anggota')")
+            ->get()
+            ->groupBy('kategorijabatan');
+
         $this->isDetailModalOpen = true;
     }
 
@@ -71,6 +76,7 @@ class StrukturOrganisasi extends Component
         } elseif ($user->tingkatan === 'PR') {
             return ['PAR'];
         }
+
         return [];
     }
 
@@ -78,7 +84,7 @@ class StrukturOrganisasi extends Component
     {
         $levels = $this->getVisibleLevels();
         $user = auth()->user();
-        
+
         $stats = [];
         foreach ($levels as $lvl) {
             $stats[$lvl] = Kantor::scoped($user)->where('jenjang', $lvl)->count();
@@ -88,9 +94,9 @@ class StrukturOrganisasi extends Component
         if ($this->selectedLevel && in_array($this->selectedLevel, $levels)) {
             $listKantor = Kantor::scoped($user)
                 ->where('jenjang', $this->selectedLevel)
-                ->when($this->search, function($q) {
-                    $q->where('nama_kantor', 'like', '%' . $this->search . '%')
-                      ->orWhere('alamat', 'like', '%' . $this->search . '%');
+                ->when($this->search, function ($q) {
+                    $q->where('nama_kantor', 'like', '%'.$this->search.'%')
+                        ->orWhere('alamat', 'like', '%'.$this->search.'%');
                 })
                 ->orderBy('nama_kantor')
                 ->paginate(12);

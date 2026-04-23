@@ -219,6 +219,15 @@
                             Input Manual
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('admin.riwayat') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 {{ request()->routeIs('admin.riwayat') ? 'bg-primary-500/10 text-primary-700 font-semibold shadow-sm' : 'text-gray-600 hover:bg-white/60 hover:text-gray-900' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Riwayat Aktivitas
+                        </a>
+                    </li>
                 @endif
             </ul>
         </div>

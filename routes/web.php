@@ -5,8 +5,12 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\VerifikasiController;
 use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Livewire\Admin\InputManual;
+use App\Livewire\Admin\ManajemenAdmin;
 use App\Livewire\Admin\ManajemenAnggota;
 use App\Livewire\Admin\ManajemenKantor;
+use App\Livewire\Admin\ManajemenPengurus;
+use App\Livewire\Admin\RiwayatAktivitas;
+use App\Livewire\Admin\StrukturOrganisasi;
 use App\Livewire\Anggota\KartuDigital;
 use App\Livewire\Anggota\Profil;
 use App\Livewire\Anggota\UbahPassword;
@@ -18,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-// ─── Public ─────────────────────────────────────────────
 Route::view('/', 'landing')->name('landing');
 Route::get('/pendaftaran', PendaftaranAnggota::class)->name('pendaftaran');
 Route::get('/login', Login::class)->name('login');
@@ -26,10 +29,8 @@ Route::get('/lupa-password', LupaPassword::class)->name('password.request');
 Route::get('/reset-password/{token}', ResetPassword::class)->name('password.reset');
 Route::get('/verifikasi/{nomor}', [VerifikasiController::class, 'show'])->name('verify');
 
-// Private File
 Route::get('/private-file', [FileController::class, 'servePrivateFile'])->name('file.private');
 
-// Logout
 Route::post('/logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();
@@ -38,7 +39,6 @@ Route::post('/logout', function (Request $request) {
     return redirect('/');
 })->name('logout');
 
-// ─── Anggota (auth + role:anggota) ──────────────────────
 Route::middleware(['auth', 'role:anggota'])->prefix('anggota')->name('anggota.')->group(function () {
     Route::get('/profil', Profil::class)->name('profil');
     Route::get('/password', UbahPassword::class)->name('password');
@@ -50,17 +50,15 @@ Route::middleware(['auth', 'role:anggota'])->prefix('anggota')->name('anggota.')
     });
 });
 
-// ─── Admin (auth + role:admin) ──────────────────────────
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Unified login is handled via /login for both admin and anggota
-
     Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
-        Route::get('/struktur-organisasi', \App\Livewire\Admin\StrukturOrganisasi::class)->name('struktur');
+        Route::get('/struktur-organisasi', StrukturOrganisasi::class)->name('struktur');
         Route::get('/manajemen-anggota', ManajemenAnggota::class)->name('manajemen');
         Route::get('/manajemen-kantor', ManajemenKantor::class)->name('kantor');
-        Route::get('/manajemen-pengurus', \App\Livewire\Admin\ManajemenPengurus::class)->name('pengurus');
-        Route::get('/manajemen-admin', \App\Livewire\Admin\ManajemenAdmin::class)->name('admin');
+        Route::get('/manajemen-pengurus', ManajemenPengurus::class)->name('pengurus');
+        Route::get('/manajemen-admin', ManajemenAdmin::class)->name('admin');
         Route::get('/input-manual', InputManual::class)->name('input-manual');
+        Route::get('/riwayat-aktivitas', RiwayatAktivitas::class)->name('riwayat');
     });
 });

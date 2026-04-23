@@ -39,4 +39,8 @@ return [
         'api_key' => env('OCR_SPACE_API_KEY'),
     ],
 
+    'satubarisan' => [
+        'key' => env('SATUBARISAN_API_KEY'),
+    ],
+
 ];
